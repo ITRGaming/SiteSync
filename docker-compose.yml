@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: site_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: site_user
+      POSTGRES_PASSWORD: site_pass
+      POSTGRES_DB: site_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
