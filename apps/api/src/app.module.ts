@@ -29,12 +29,11 @@ import * as bcrypt from 'bcrypt';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         type: 'postgres',
-        host: config.get<string>('DB_HOST'),
-        port: parseInt(config.get<string>('DB_PORT') || '5432'),
-        username: config.get<string>('DB_USER'),
-        password: config.get<string>('DB_PASS'),
-        database: config.get<string>('DB_NAME'),
+        url: config.get<string>('DATABASE_URL'),
         autoLoadEntities: true,
+        ssl: {
+          rejectUnauthorized: false,
+        },
         synchronize: false,
       }),
     }),
