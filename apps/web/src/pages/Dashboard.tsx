@@ -24,7 +24,6 @@ function Dashboard() {
     try {
       const res = await api.get("/users/me");
       setMe(res.data);
-      console.log("User details:", res.data);
     } catch (err) {
       console.error(err);
     }

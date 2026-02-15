@@ -1,7 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import  { IconButton } from "@radix-ui/themes";
-import { ArrowLeftIcon } from "@radix-ui/react-icons";
+import BackButton from "../components/common/BackButton";
 import api from "../api/axios";
 
 function SiteDetail() {
@@ -66,14 +65,7 @@ function SiteDetail() {
 
   return (
     <div className="p-8">
-      <IconButton
-        onClick={() => navigate("/dashboard")}
-        color="gray"
-        variant="ghost"
-        size="3"
-      >
-        <ArrowLeftIcon width="22" height="22" />
-      </IconButton>
+      <BackButton/>
 
       <h1 className="text-2xl font-bold mb-6 mt-4">
         Site Phases - {site?.name || "Site Details"}

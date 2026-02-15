@@ -16,6 +16,7 @@ import { RolesGuard } from './auth/roles.guard';
 import { SitesModule } from './sites/sites.module';
 import { PhasesModule } from './phases/phases.module';
 import { PilesModule } from './piles/piles.module';
+import { PileReportModule } from './pile-report/pile-report.module';
 import * as bcrypt from 'bcrypt';
 
 @Module({
@@ -34,7 +35,7 @@ import * as bcrypt from 'bcrypt';
         password: config.get<string>('DB_PASS'),
         database: config.get<string>('DB_NAME'),
         autoLoadEntities: true,
-        synchronize: true,
+        synchronize: false,
       }),
     }),
 
@@ -49,6 +50,8 @@ import * as bcrypt from 'bcrypt';
     PhasesModule,
 
     PilesModule,
+
+    PileReportModule,
   ],
   controllers: [AppController],
   providers: [

@@ -1,7 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useCallback } from "react";
-import  { IconButton } from "@radix-ui/themes";
-import { ArrowLeftIcon } from "@radix-ui/react-icons";
+import BackButton from "../components/common/BackButton";
 import { debounce } from "../utils/debounce";
 import api from "../api/axios";
 
@@ -86,14 +85,7 @@ function PilesPage() {
 
   return (
     <div className="p-8">
-      <IconButton
-        onClick={() => navigate(`/dashboard/site/${siteId}`)}
-        color="gray"
-        variant="ghost"
-        size="3"
-      >
-        <ArrowLeftIcon width="22" height="22" />
-      </IconButton>
+      <BackButton to={`/dashboard/site/${siteId}`} />
 
       <h1 className="text-2xl font-bold mb-6 mt-4">
         Piles
@@ -111,8 +103,9 @@ function PilesPage() {
         <ul className="space-y-2">
           {searchPiles.map((pile, key) => (
             <li
+            onClick={() => pile.pileNumber && navigate(`/dashboard/site/${siteId}/pile/${pile.id}/report`)}
             key={pile.id}
-            className="border p-3 rounded flex justify-between"
+            className="border p-3 rounded flex justify-between cursor-pointer"
             >
               {pile.pileNumber ? (
                 <div>

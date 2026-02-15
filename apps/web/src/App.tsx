@@ -1,13 +1,10 @@
 import { Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { useEffect, useState } from "react";
-import api from "./api/axios";
-import  { IconButton } from "@radix-ui/themes";
-import { TrashIcon, ResetIcon, ExitIcon } from "@radix-ui/react-icons";
 import SiteDetail from "./pages/SiteDetails";
 import PilesPage from "./pages/PilesPage";
 import Dashboard from "./pages/Dashboard";
+import PileReportPage from "./pages/PileReportPage";
 
 function App() {
   return (
@@ -32,6 +29,15 @@ function App() {
         element={
           <ProtectedRoute>
             <PilesPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/dashboard/site/:siteId/pile/:pileId/report"
+        element={
+          <ProtectedRoute>
+            <PileReportPage />
           </ProtectedRoute>
         }
       />
