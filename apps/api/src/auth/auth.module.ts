@@ -11,7 +11,7 @@ import { UsersModule } from '../users/users.module';
     UsersModule,
     PassportModule,
     JwtModule.register({
-      secret: 'supersecretkey',
+      secret: process.env.SECRETKEY!,
       signOptions: { expiresIn: '1d' },
     }),
   ],

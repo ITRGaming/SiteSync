@@ -4,19 +4,19 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-    constructor() {
-        super({
-        jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-        ignoreExpiration: false,
-        secretOrKey: 'supersecretkey',
-        });
-    }
+  constructor() {
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: process.env.SECRETKEY!,
+    });
+  }
 
-    async validate(payload: any) {
-        return {
-        userId: payload.sub,
-        email: payload.email,
-        role: payload.role,
-        };
-    }
+  async validate(payload: any) {
+    return {
+      userId: payload.sub,
+      email: payload.email,
+      role: payload.role,
+    };
+  }
 }
