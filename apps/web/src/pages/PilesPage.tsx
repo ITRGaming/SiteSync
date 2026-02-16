@@ -14,7 +14,7 @@ function PilesPage() {
   const [searchPiles, setSearchPiles] = useState<any[]>([]);
   const [error, setError] = useState("");
 
-  const isAdmin = localStorage.getItem("isAdmin") === "true";
+  // const isAdmin = localStorage.getItem("isAdmin") === "true";
 
   const fetchPiles = async () => {
     const res = await api.get(`/piles/by-site/${siteId}`);
