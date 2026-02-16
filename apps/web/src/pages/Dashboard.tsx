@@ -225,14 +225,22 @@ function Dashboard() {
               className="border p-4 rounded grid grid-cols-3"
             >
               <div>
-                <h3 className="font-bold cursor-pointer text-blue-400"
+                <h3 className="font-bold cursor-pointer text-blue-500"
                   onClick={() =>
                     navigate(`/dashboard/site/${site.id}`)
                   }
                 >{site.name}</h3>
-                <p className="text-sm text-gray-500">
-                  {site.location}
+                <p className="text-sm text-gray-500 mb-2">
+                  ({site.location})
                 </p>
+                { site.description && (
+                  <div>
+                    <h4 className="text-base text-gray-600">Description:</h4>
+                    <p className="text-sm text-gray-500">
+                      {site.description}
+                    </p>
+                  </div>
+                )}
               </div>
               {isAdmin && (
                 <div className="relative">

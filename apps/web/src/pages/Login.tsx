@@ -20,7 +20,9 @@ export default function Login() {
 
             const token = res.data.access_token;
             localStorage.setItem("token", token);
-            const role = token?.role || "UNKNOWN";
+            const payload = JSON.parse(atob(token.split(".")[1]));
+            const role = payload?.role || "UNKNOWN";
+            console.log("User role:", role);
             const isAdmin = role === "ADMIN" || role === "SUPER_ADMIN";
             localStorage.setItem("role", role);
             localStorage.setItem("isAdmin", isAdmin.toString());
