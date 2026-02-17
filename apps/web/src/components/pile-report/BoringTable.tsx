@@ -38,10 +38,28 @@ export default function BoringTable() {
                     type="button"
                     variant="solid"
                     disabled={isLocked}
-                    onClick={() => append({
-                        fromTime: "", toTime: "", depth: 0,
-                        toolType: "", activity: "", strata: "", remark: ""
-                    })}
+                    onClick={() => {
+                        const currentLogs = watch("boringLogs") || [];
+                        const lastLog = currentLogs.length > 0 ? currentLogs[currentLogs.length - 1] : null;
+                        let nextFromTime = "";
+                        let nextToTime = "";
+
+                        if (lastLog?.toTime) {
+                            nextFromTime = lastLog.toTime; // Start where the last one ended
+
+                            // logic to add 10 minutes
+                            const [hours, minutes] = lastLog.toTime.split(':').map(Number);
+                            const date = new Date();
+                            date.setHours(hours);
+                            date.setMinutes(minutes + 10); // Add 10 minutes
+
+                            // Format back to HH:mm (ensuring leading zeros)
+                            nextToTime = date.toTimeString().slice(0, 5); 
+                        }
+                        append({
+                        fromTime: nextFromTime, toTime: nextToTime, depth: 0,
+                        toolType: lastLog?.toolType || "", activity: "", strata: "", remark: ""
+                    })}}
                 >
                     <PlusIcon /> Add Row
                 </Button>
