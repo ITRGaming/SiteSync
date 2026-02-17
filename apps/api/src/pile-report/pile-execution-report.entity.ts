@@ -57,6 +57,9 @@ export class PileExecutionReport {
   @Column({ nullable: true })
   rmcSupplierName: string;
 
+  @Column({ type: 'date', nullable: true })
+  boringDate: string;
+
   // Reinforcement Summary
   @Column({ type: 'decimal', precision: 12, scale: 2, nullable: true })
   totalCageWeight: number;
@@ -80,12 +83,16 @@ export class PileExecutionReport {
   submittedAt: Date;
 
   @ManyToOne(() => User, { nullable: true })
-  @JoinColumn()
+  @JoinColumn({ name: 'submittedByUserId' })
   submittedBy: User;
 
   @ManyToOne(() => User)
-  @JoinColumn()
+  @JoinColumn({ name: 'createdByUserId' })
   createdBy: User;
+
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'updatedByUserId' })
+  updatedBy: User;
 
   @CreateDateColumn()
   createdAt: Date;

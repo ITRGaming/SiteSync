@@ -10,6 +10,30 @@ import {
 import { Type } from 'class-transformer';
 import { ReportStatus } from '../pile-execution-report.entity';
 
+class PileDto {
+  @IsNumber()
+  id: number;
+
+  @IsNumber()
+  diameter: number;
+
+  @IsOptional()
+  @IsNumber()
+  groundLevel?: number;
+
+  @IsOptional()
+  @IsNumber()
+  cutOffLevel?: number;
+
+  @IsOptional()
+  @IsNumber()
+  linerTopLevel?: number;
+
+  @IsOptional()
+  @IsString()
+  location?: string;
+}
+
 class BoringLogDto {
   @IsDateString()
   fromTime: string;
@@ -17,9 +41,8 @@ class BoringLogDto {
   @IsDateString()
   toTime: string;
 
-  @IsOptional()
   @IsNumber()
-  depth?: number;
+  depth: number;
 
   @IsOptional()
   @IsString()
@@ -42,23 +65,29 @@ class ReinforcementDto {
   @IsString()
   barShape: string;
 
+  @IsOptional()
   @IsNumber()
-  barDiameter: number;
+  barDiameter?: number;
 
+  @IsOptional()
   @IsNumber()
-  numberOfBars: number;
+  numberOfBars?: number;
 
+  @IsOptional()
   @IsNumber()
-  length: number;
+  length?: number;
 
+  @IsOptional()
   @IsNumber()
-  totalLengthRmt: number;
+  totalLengthRmt?: number;
 
+  @IsOptional()
   @IsNumber()
-  weightPerRmt: number;
+  weightPerRmt?: number;
 
+  @IsOptional()
   @IsNumber()
-  totalWeight: number;
+  totalWeight?: number;
 }
 
 export class UpdatePileReportDto {
@@ -95,28 +124,20 @@ export class UpdatePileReportDto {
   rmcSupplierName?: string;
 
   @IsOptional()
-  @IsNumber()
-  totalCageWeight?: number;
+  @IsDateString()
+  boringDate?: string;
 
   @IsOptional()
   @IsNumber()
-  msLinerLength?: number;
+  totalCageWeight: number;
 
   @IsOptional()
-  @IsString()
-  integrityStatus?: string;
+  @IsNumber()
+  msLinerLength: number;
 
-  @IsOptional()
-  @IsString()
-  cube7DayStatus?: string;
-
-  @IsOptional()
-  @IsString()
-  cube28DayStatus?: string;
-
-  @IsOptional()
-  @IsString()
-  eccentricityStatus?: string;
+  @ValidateNested()
+  @Type(() => PileDto)
+  pile: PileDto;
 
   @IsOptional()
   @ValidateNested({ each: true })

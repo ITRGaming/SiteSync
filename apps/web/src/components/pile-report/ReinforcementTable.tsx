@@ -1,4 +1,4 @@
-import { useFieldArray, useFormContext } from "react-hook-form";
+import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import { useEffect } from "react";
 import { PlusIcon, TrashIcon, LockClosedIcon } from "@radix-ui/react-icons";
 import { IconButton, Button, Text, Flex } from "@radix-ui/themes";
@@ -17,6 +17,8 @@ export default function ReinforcementTable() {
     const { control, register, watch, setValue } = useFormContext<{
         reinforcementEntries: ReinforcementEntry[];
         isLocked: boolean;
+        totalCageWeight: number;
+        msLinerLength: number;
     }>();
 
     const { fields, append, remove } = useFieldArray({
@@ -24,34 +26,40 @@ export default function ReinforcementTable() {
         name: "reinforcementEntries",
     });
 
-    const entries = watch("reinforcementEntries");
+    const watchedEntries = useWatch({
+        control,
+        name: "reinforcementEntries",
+    });
     const isLocked = watch("isLocked");
 
     useEffect(() => {
-        if (isLocked) return;
+        if (isLocked || !watchedEntries) return;
 
-        entries?.forEach((entry, index) => {
-            const numBars = Number(entry.numberOfBars) || 0;
-            const len = Number(entry.length) || 0;
-            const weightRmt = Number(entry.weightPerRmt) || 0;
+        watchedEntries?.forEach((entry, index) => {
+            const numBars = Number(entry?.numberOfBars) || 0;
+            const len = Number(entry?.length) || 0;
+            const weightRmt = Number(entry?.weightPerRmt) || 0;
 
-            const totalLength = numBars * len;
-            const totalWeight = totalLength * weightRmt;
+            const totalLength = parseFloat((numBars * len).toFixed(3));
+            const totalWeight = parseFloat((totalLength * weightRmt).toFixed(3));
 
-            if (entry.totalLengthRmt !== totalLength) {
+            if (entry?.totalLengthRmt !== totalLength) {
                 setValue(`reinforcementEntries.${index}.totalLengthRmt`, totalLength, { shouldValidate: true });
             }
-            if (entry.totalWeight !== totalWeight) {
+            if (entry?.totalWeight !== totalWeight) {
                 setValue(`reinforcementEntries.${index}.totalWeight`, totalWeight, { shouldValidate: true });
             }
         });
-    }, [entries, setValue, isLocked]);
+
+        const totalCageWeight = watchedEntries?.reduce((sum, entry) => sum + (entry?.totalWeight || 0), 0);
+        setValue("totalCageWeight", totalCageWeight, { shouldValidate: true });
+    }, [watchedEntries, setValue, isLocked]);
 
     // Helper to handle the "lock cursor" and visual state
     const getInputClass = (isReadonlyField = false) => `
         w-full bg-transparent border border-transparent rounded px-2 py-1.5 outline-none transition-all text-sm
-        ${isLocked 
-            ? "cursor-not-allowed text-gray-400" 
+        ${isLocked
+            ? "cursor-not-allowed text-gray-400"
             : "hover:border-gray-200 focus:border-blue-500 focus:bg-white"
         }
         ${isReadonlyField ? "bg-gray-50/50" : ""}
@@ -82,7 +90,7 @@ export default function ReinforcementTable() {
                 <table className="w-full border-collapse">
                     <thead>
                         <tr className="bg-gray-50 border-b">
-                            {["Shape", "Dia", "No. Bars", "Length (m)", "Total L", "Wt/RMT", "Total Wt"].map((h) => (
+                            {["Shape", "Dia (mm)", "No. Bars", "Length (m)", "Total Length (RMT)", "Weight/RMT (kg/m)", "Total Weight (kg)"].map((h) => (
                                 <th key={h} className="p-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                     {h}
                                 </th>
@@ -94,70 +102,68 @@ export default function ReinforcementTable() {
                         {fields.map((field, index) => (
                             <tr key={field.id} className={`${isLocked ? 'bg-gray-50/20' : 'hover:bg-blue-50/30'} transition-colors`}>
                                 <td className="p-2">
-                                    <input 
-                                        disabled={isLocked} 
-                                        className={getInputClass()} 
-                                        placeholder="Shape" 
-                                        {...register(`reinforcementEntries.${index}.barShape`)} 
+                                    <input
+                                        disabled={isLocked}
+                                        className={getInputClass()}
+                                        placeholder="Shape"
+                                        {...register(`reinforcementEntries.${index}.barShape`)}
                                     />
                                 </td>
                                 <td className="p-2">
-                                    <input 
-                                        disabled={isLocked} 
-                                        type="number" 
-                                        className={getInputClass()} 
-                                        {...register(`reinforcementEntries.${index}.barDiameter`, { valueAsNumber: true })} 
+                                    <input
+                                        disabled={isLocked}
+                                        type="number"
+                                        className={getInputClass()}
+                                        {...register(`reinforcementEntries.${index}.barDiameter`, { valueAsNumber: true })}
                                     />
                                 </td>
                                 <td className="p-2">
-                                    <input 
-                                        disabled={isLocked} 
-                                        type="number" 
-                                        className={getInputClass()} 
-                                        {...register(`reinforcementEntries.${index}.numberOfBars`, { valueAsNumber: true })} 
+                                    <input
+                                        disabled={isLocked}
+                                        type="number"
+                                        className={getInputClass()}
+                                        {...register(`reinforcementEntries.${index}.numberOfBars`, { valueAsNumber: true })}
                                     />
                                 </td>
                                 <td className="p-2">
-                                    <input 
-                                        disabled={isLocked} 
-                                        type="number" 
-                                        step="0.01" 
-                                        className={getInputClass()} 
-                                        {...register(`reinforcementEntries.${index}.length`, { valueAsNumber: true })} 
+                                    <input
+                                        disabled={isLocked}
+                                        type="number"
+                                        step="0.01"
+                                        className={getInputClass()}
+                                        {...register(`reinforcementEntries.${index}.length`, { valueAsNumber: true })}
                                     />
                                 </td>
                                 <td className="p-2">
-                                    <input 
-                                        readOnly 
-                                        disabled={isLocked} 
-                                        className={getInputClass(true) + " font-medium text-gray-600"} 
-                                        {...register(`reinforcementEntries.${index}.totalLengthRmt`, { valueAsNumber: true })} 
+                                    <input
+                                        readOnly
+                                        className={getInputClass(true) + " font-medium text-gray-600"}
+                                        {...register(`reinforcementEntries.${index}.totalLengthRmt`, { valueAsNumber: true })}
                                     />
                                 </td>
                                 <td className="p-2">
-                                    <input 
-                                        disabled={isLocked} 
-                                        type="number" 
-                                        step="0.001" 
-                                        className={getInputClass()} 
-                                        {...register(`reinforcementEntries.${index}.weightPerRmt`, { valueAsNumber: true })} 
+                                    <input
+                                        disabled={isLocked}
+                                        type="number"
+                                        step="0.001"
+                                        className={getInputClass()}
+                                        {...register(`reinforcementEntries.${index}.weightPerRmt`, { valueAsNumber: true })}
                                     />
                                 </td>
                                 <td className="p-2">
-                                    <input 
-                                        readOnly 
-                                        disabled={isLocked} 
-                                        className={getInputClass(true) + " font-bold text-blue-700"} 
-                                        {...register(`reinforcementEntries.${index}.totalWeight`, { valueAsNumber: true })} 
+                                    <input
+                                        readOnly
+                                        className={getInputClass(true) + " font-bold text-blue-700"}
+                                        {...register(`reinforcementEntries.${index}.totalWeight`, { valueAsNumber: true })}
                                     />
                                 </td>
                                 <td className="p-2 text-center">
-                                    <IconButton 
-                                        disabled={isLocked} 
-                                        size="1" 
-                                        variant="ghost" 
-                                        color="red" 
-                                        type="button" 
+                                    <IconButton
+                                        disabled={isLocked}
+                                        size="1"
+                                        variant="ghost"
+                                        color="red"
+                                        type="button"
                                         onClick={() => remove(index)}
                                     >
                                         <TrashIcon />
@@ -165,6 +171,29 @@ export default function ReinforcementTable() {
                                 </td>
                             </tr>
                         ))}
+                        <tr className={`${isLocked ? '' : 'hover:bg-blue-50/20'} transition-colors bg-gray-50`}>
+                            <td className="p-2"> Total Pile Cage Weight</td>
+                            <td className="p-2">
+                                <input
+                                    readOnly
+                                    className={getInputClass(true) + " font-bold text-blue-700"}
+                                    {...register(`totalCageWeight`, { valueAsNumber: true })}
+                                />
+                            </td>
+                            <td className="p-2" colSpan={6}></td>
+                        </tr>
+                        <tr className={`${isLocked ? '' : 'hover:bg-blue-50/20'} transition-colors bg-gray-50`}>
+                            <td className="p-2"> M. S. Liner (M)</td>
+                            <td className="p-2">
+                                <input
+                                    disabled={isLocked}
+                                    type="number"
+                                    className={getInputClass(true) + " font-bold text-blue-700"}
+                                    {...register(`msLinerLength`, { valueAsNumber: true })}
+                                />
+                            </td>
+                            <td className="p-2" colSpan={6}></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

@@ -6,9 +6,11 @@ import {
   ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 import { Site } from '../sites/site.entity';
 import { Pile } from '../piles/pile.entity';
+import { User } from 'src/users/user.entity';
 
 export enum PhaseType {
   PILES = 'PILES',
@@ -57,4 +59,12 @@ export class Phase {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'createdByUserId' })
+  createdBy: User;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'updatedByUserId' })
+  updatedBy: User;
 }

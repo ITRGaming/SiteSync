@@ -21,8 +21,9 @@ export class SitesController {
   @Roles('SUPER_ADMIN', 'ADMIN')
   createSite(
     @Body() body: { name: string; location?: string; description?: string },
+    @Request() req,
   ) {
-    return this.sitesService.createSite(body);
+    return this.sitesService.createSite(body, req.user);
   }
 
   // Assign Engineer
@@ -31,8 +32,9 @@ export class SitesController {
   assignEngineer(
     @Param('siteId') siteId: string,
     @Param('userId') userId: string,
+    @Request() req,
   ) {
-    return this.sitesService.assignEngineer(Number(siteId), Number(userId));
+    return this.sitesService.assignEngineer(Number(siteId), Number(userId), req.user);
   }
 
   // Get Sites for Logged-in User
@@ -50,19 +52,19 @@ export class SitesController {
   // Soft Delete Site (Admin + Super Admin)
   @Patch(':id/delete')
   @Roles('SUPER_ADMIN', 'ADMIN')
-  softDelete(@Param('id') id: string) {
-    return this.sitesService.softDelete(Number(id));
+  softDelete(@Param('id') id: string, @Request() req) {
+    return this.sitesService.softDelete(Number(id), req.user);
   }
 
   @Patch(':id/restore')
   @Roles('SUPER_ADMIN', 'ADMIN')
-  restoreSite(@Param('id') id: string) {
-    return this.sitesService.restore(Number(id));
+  restoreSite(@Param('id') id: string, @Request() req) {
+    return this.sitesService.restore(Number(id), req.user);
   }
 
   @Delete(':id')
   @Roles('SUPER_ADMIN')
-  hardDelete(@Param('id') id: string) {
-    return this.sitesService.hardDelete(Number(id));
+  hardDelete(@Param('id') id: string, @Request() req) {
+    return this.sitesService.hardDelete(Number(id), req.user);
   }
 }

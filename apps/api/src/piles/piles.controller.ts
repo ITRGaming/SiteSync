@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Param, Body, Req } from '@nestjs/common';
 import { PilesService } from './piles.service';
 
 @Controller('piles')
@@ -9,8 +9,13 @@ export class PilesController {
   createPile(
     @Param('phaseId') phaseId: string,
     @Body() body: { pileNumber?: string },
+    @Req() req,
   ) {
-    return this.pilesService.createPile(Number(phaseId), body.pileNumber);
+    return this.pilesService.createPile(
+      Number(phaseId),
+      body.pileNumber,
+      req.user,
+    );
   }
 
   @Get('by-site/:siteId')
@@ -22,7 +27,13 @@ export class PilesController {
   updatePileNumber(
     @Param('pileId') pileId: string,
     @Body() body: { pileNumber: string },
+    @Req() req,
   ) {
-    return this.pilesService.updatePileNumber(Number(pileId), body.pileNumber);
+    return this.pilesService.updatePileNumber(Number(pileId), body.pileNumber, req.user);
   }
+
+  // @Patch(':pileId')
+  // updatePile(@Param('pileId') pileId: string, @Body() body: any) {
+  //   return this.pilesService.updatePile(Number(pileId), body);
+  // }
 }

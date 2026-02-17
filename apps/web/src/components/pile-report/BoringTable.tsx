@@ -6,6 +6,7 @@ export default function BoringTable() {
     const { control, register, watch } = useFormContext<{
         boringLogs: any[];
         isLocked: boolean;
+        boringDate: string;
     }>();
 
     const { fields, append, remove } = useFieldArray({
@@ -16,13 +17,13 @@ export default function BoringTable() {
     // Watch the lock status from the form provider
     const isLocked = watch("isLocked");
 
-    const columns = ["From Time", "To Time", "Depth (m)", "Tool Type", "Activity", "Strata", "Remark"];
+    const columns = ["From Time*", "To Time*", "Depth (m)*", "Tool Type", "Activity", "Strata", "Remark"];
 
     // Reusable tailwind classes for the input fields
-    const inputClass = `w-full bg-transparent border border-transparent rounded px-2 py-1.5 outline-none transition-all text-sm
+    const inputClass = `w-full bg-transparent border rounded px-2 py-1.5 outline-none transition-all text-sm
     ${isLocked
-            ? "cursor-not-allowed text-gray-400"
-            : "hover:border-gray-300 focus:border-blue-500 focus:bg-white"
+            ? "cursor-not-allowed text-gray-400 border-gray-200"
+            : "hover:border-gray-400 focus:border-blue-500 focus:bg-white border-gray-300"
         }`;
 
     return (
@@ -32,6 +33,14 @@ export default function BoringTable() {
                 <Flex align="center" gap="2">
                     <Text size="3" weight="bold" className="text-gray-800">Boring Log Details</Text>
                     {isLocked && <LockClosedIcon className="text-gray-500" />}
+                </Flex>
+
+                <Flex align="center" gap="2">
+                    <label className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Boring Date:</label>
+                    <input type="date" disabled={isLocked} className={inputClass} {...register("boringDate")} />
+                </Flex>
+                <Flex align="center" gap="2">
+                    <Text size="2" className="text-gray-800">Total Logs: {fields.length}</Text>
                 </Flex>
 
                 <Button

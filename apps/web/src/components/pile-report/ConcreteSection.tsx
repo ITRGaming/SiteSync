@@ -8,18 +8,18 @@ export default function ConcreteSection() {
 
     const inputClass = `w-full bg-white border rounded-md px-3 py-2 text-sm transition-all outline-none
     ${isLocked
-            ? "bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed"
-            : "border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-        }`;
+        ? "bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed"
+        : "border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+    }`;
 
     const fields = [
-        { name: "concreteGrade", type: "text", placeholder: "Concrete Grade" },
-        { name: "theoreticalQuantity", type: "number", placeholder: "Theoretical Qty", step: "0.001" },
-        { name: "actualQuantity", type: "number", placeholder: "Actual Qty", step: "0.001" },
-        { name: "tremieLength", type: "number", placeholder: "Tremie Length", step: "0.001" },
+        { name: "concreteGrade", type: "text", placeholder: "Concrete Grade", label: "Concrete Grade" },
+        { name: "theoreticalQuantity", type: "number", placeholder: "Theoretical Qty", step: "0.001", label: "Theoretical(m³)" },
+        { name: "actualQuantity", type: "number", placeholder: "Actual Qty", step: "0.001", label: "Actual(m³)" },
+        { name: "tremieLength", type: "number", placeholder: "Tremie Length", step: "0.001", label: "Tremie Length(m)" },
         { name: "pourStartTime", type: "datetime-local", label: "Pour Start Time" },
         { name: "pourEndTime", type: "datetime-local", label: "Pour End Time" },
-        { name: "rmcSupplierName", type: "text", placeholder: "RMC Supplier Name" },
+        { name: "rmcSupplierName", type: "text", placeholder: "RMC Supplier Name", label: "Name of (RMC) Supplier" },
     ];
 
     return (

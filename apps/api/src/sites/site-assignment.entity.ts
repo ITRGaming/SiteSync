@@ -3,6 +3,7 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   CreateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 import { Site } from './site.entity';
 import { User } from '../users/user.entity';
@@ -25,4 +26,8 @@ export class SiteAssignment {
 
   @CreateDateColumn()
   assignedAt: Date;
+
+  @ManyToOne(() => User)
+  @JoinColumn()
+  assignedBy: User;
 }

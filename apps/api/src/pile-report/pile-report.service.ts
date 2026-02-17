@@ -25,22 +25,46 @@ export class PileReportService {
     private reportRepo: Repository<PileExecutionReport>,
     @InjectRepository(Pile)
     private pileRepo: Repository<Pile>,
+    @InjectRepository(ReinforcementEntry)
+    private reinforcementEntryRepo: Repository<ReinforcementEntry>,
   ) {}
 
   async getOrCreateReport(pileId: number, user: User) {
     let report = await this.reportRepo.findOne({
       where: { pile: { id: pileId } },
-      relations: ['boringLogs', 'reinforcementEntries'],
+      relations: ['boringLogs', 'reinforcementEntries', 'pile'],
     });
 
     if (!report) {
       const pile = await this.pileRepo.findOneBy({ id: pileId });
       if (!pile) throw new NotFoundException('Pile not found');
 
+      const defaultShapes = [
+        'Main Bar',
+        'Master Ring',
+        'Helical Ring',
+        'Bottom Ring',
+        'Main Bar Lap',
+        'Helical Lap',
+      ];
+
       report = this.reportRepo.create({
         pile,
-        createdBy: user,
+        createdBy: { id: user.id } as User,
+        updatedBy: { id: user.id } as User,
       });
+
+      report.reinforcementEntries = defaultShapes.map((shape) =>
+        this.reinforcementEntryRepo.create({
+          barShape: shape,
+          barDiameter: 0,
+          numberOfBars: 0,
+          length: 0,
+          totalLengthRmt: 0,
+          weightPerRmt: 0,
+          totalWeight: 0, // Link back to the new report
+        }),
+      );
 
       await this.reportRepo.save(report);
     }
@@ -76,7 +100,13 @@ export class PileReportService {
         );
       }
 
+      if (dto.pile) {
+        await manager.update(Pile, dto.pile.id, dto.pile);
+      }
+
       report.pile.status = PileStatus.IN_PROGRESS;
+      report.updatedBy = { id: user.id } as User;
+      report.updatedAt = new Date();
 
       return manager.save(report);
     });
@@ -109,7 +139,7 @@ export class PileReportService {
       report.status = ReportStatus.SUBMITTED;
       report.isLocked = true;
       report.submittedAt = new Date();
-      report.submittedBy = user;
+      report.submittedBy = { id: user.id } as User;
 
       report.pile.status = PileStatus.COMPLETED;
 

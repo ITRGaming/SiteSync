@@ -5,6 +5,8 @@ import {
   OneToMany,
   UpdateDateColumn,
   CreateDateColumn,
+  JoinColumn,
+  ManyToOne,
 } from 'typeorm';
 import { User } from '../users/user.entity';
 
@@ -30,4 +32,12 @@ export class Role {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'createdByUserId' })
+  createdBy: User;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'updatedByUserId' })
+  updatedBy: User;
 }

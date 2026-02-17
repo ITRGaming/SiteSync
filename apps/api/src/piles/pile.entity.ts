@@ -11,6 +11,7 @@ import {
 import { Phase } from '../phases/phase.entity';
 import { PileExecutionReport } from '../pile-report/pile-execution-report.entity';
 import { Site } from '../sites/site.entity';
+import { User } from 'src/users/user.entity';
 
 export enum PileStatus {
   PENDING = 'PENDING',
@@ -87,4 +88,12 @@ export class Pile {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'createdByUserId' })
+  createdBy: User;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'updatedByUserId' })
+  updatedBy: User;
 }

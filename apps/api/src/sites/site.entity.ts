@@ -5,10 +5,13 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  JoinColumn,
+  ManyToOne,
 } from 'typeorm';
 import { SiteAssignment } from './site-assignment.entity';
 import { Phase } from '../phases/phase.entity';
 import { Pile } from 'src/piles/pile.entity';
+import { User } from 'src/users/user.entity';
 
 @Entity()
 export class Site {
@@ -26,6 +29,14 @@ export class Site {
 
   @Column({ default: true })
   isActive: boolean;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'createdByUserId' })
+  createdBy: User;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'updatedByUserId' })
+  updatedBy: User;
 
   @CreateDateColumn()
   createdAt: Date;

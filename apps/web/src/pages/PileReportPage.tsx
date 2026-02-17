@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { useParams } from "react-router-dom";
 import api from "../api/axios";
@@ -24,8 +24,19 @@ const cleanReportData = (data: any) => {
 
   return {
     ...rest,
+    reportDate: toISO(data.reportDate),
     pourStartTime: toISO(data.pourStartTime),
     pourEndTime: toISO(data.pourEndTime),
+    totalCageWeight: parseFloat(data.pile.totalCageWeight) || 0,
+    msLinerLength: parseFloat(data.pile.msLinerLength) || 0,
+    pile: {
+      id: data.pile.id as number,
+      diameter: parseFloat(data.pile.diameter) || 0,
+      location: data.pile.location,
+      groundLevel: parseFloat(data.pile.groundLevel) || 0,
+      cutOffLevel: parseFloat(data.pile.cutOffLevel) || 0,
+      linerTopLevel: parseFloat(data.pile.linerTopLevel) || 0,
+    },
     boringLogs: (data.boringLogs || []).map(({ id, ...log }: any) => ({
       ...log,
       fromTime: combineDateAndTime(datePart, log.fromTime),
@@ -56,6 +67,10 @@ export default function PileReportPage() {
       pourStartTime: "",
       pourEndTime: "",
       rmcSupplierName: "",
+      totalCageWeight: "",
+      msLinerLength: "",
+      boringDate: "",
+      pile: { id: pileId },
       isLocked: false,
       boringLogs: [],
       reinforcementEntries: [],
@@ -63,6 +78,8 @@ export default function PileReportPage() {
   });
 
   const { reset, watch, formState: { isDirty } } = methods;
+
+  const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
   // 1. Fetch and format initial data
   useEffect(() => {
@@ -86,13 +103,28 @@ export default function PileReportPage() {
   const memoizedData = useMemo(() => cleanReportData(formData), [JSON.stringify(formData)]);
 
   // 3. Initialize Autosave
-  const { status } = useAutosave(
+  const { status: autosaveStatus } = useAutosave(
     `/piles/${pileId}/report`,
     "patch",
     memoizedData,
     !!pileId && isDirty && !formData.isLocked,
     2000
   );
+
+  useEffect(() => {
+    if(autosaveStatus === "saving") {
+      setStatus(autosaveStatus);
+    } else if (autosaveStatus === "saved") {
+      setStatus(autosaveStatus);
+      const timer = setTimeout(() => {
+        setStatus("idle");
+      }, 3000);
+      return () => clearTimeout(timer);
+    } else if (autosaveStatus === "error") {
+      setStatus(autosaveStatus);
+    }
+
+  }, [autosaveStatus]);
 
   return (
     <FormProvider {...methods}>

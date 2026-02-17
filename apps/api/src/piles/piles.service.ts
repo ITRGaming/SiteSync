@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Pile } from './pile.entity';
 import { Phase, PhaseType } from '../phases/phase.entity';
+import { User } from 'src/users/user.entity';
 
 @Injectable()
 export class PilesService {
@@ -18,7 +19,7 @@ export class PilesService {
     private phaseRepo: Repository<Phase>,
   ) {}
 
-  async createPile(phaseId: number, pileNumber?: string) {
+  async createPile(phaseId: number, pileNumber?: string, user?: any) {
     const phase = await this.phaseRepo.findOne({
       where: { id: phaseId },
     });
@@ -45,6 +46,8 @@ export class PilesService {
     const pile = this.pileRepo.create({
       pileNumber,
       phase,
+      createdBy: { id: user.id } as User,
+      updatedBy: { id: user.id } as User,
     });
 
     return this.pileRepo.save(pile);
@@ -57,12 +60,13 @@ export class PilesService {
     });
   }
 
-  async updatePileNumber(pileId: number, pileNumber: string) {
+  async updatePileNumber(pileId: number, pileNumber: string, user?: any) {
     const pile = await this.pileRepo.findOne({ where: { id: pileId } });
     if (!pile) {
       throw new NotFoundException('Pile not found');
     }
     pile.pileNumber = pileNumber;
+    pile.updatedBy = { id: user.id } as User;
     return this.pileRepo.save(pile);
   }
 }
