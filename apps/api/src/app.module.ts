@@ -38,7 +38,7 @@ import * as bcrypt from 'bcrypt';
         // username: config.get<string>('DB_USER'),
         // password: config.get<string>('DB_PASS'),
         // database: config.get<string>('DB_NAME'),
-        // autoLoadEntities: true,
+        autoLoadEntities: true,
         ssl: {
           rejectUnauthorized: true,
         },
