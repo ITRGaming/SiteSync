@@ -37,6 +37,11 @@ function SiteDetail() {
     }
   };
 
+  const fetchDrawings = async () => {
+    const res = await api.get(`/attachments/by-phase/${pilePhaseId}/type/${AttachmentType.DRAWING}`);
+    setDrawings(res.data);
+  };
+
   useEffect(() => {
     fetchPhases();
     fetchSites();
@@ -192,6 +197,7 @@ function SiteDetail() {
                   color="amber"
                   variant="surface"
                   setLoading={setLoading}
+                  onUpload={() => fetchDrawings()}
                 />
                 <div className="my-2">
                   {drawings.length === 0 && (
@@ -218,6 +224,13 @@ function SiteDetail() {
                       </button>
                     </div>
                   ))}
+
+                  {loading && (
+                    <p className="text-sm text-gray-500 animate-pulse">
+                      Uploading...
+                    </p>
+                  )}
+
                 </div>
               </div>
               <button

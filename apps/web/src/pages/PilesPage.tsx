@@ -211,6 +211,7 @@ function PilesPage() {
               color="amber"
               variant="surface"
               setLoading={setLoading}
+              onUpload={() => fetchDrawings()}
             />
             <div className="my-2">
               {drawings.length === 0 && (
@@ -237,6 +238,13 @@ function PilesPage() {
                   </button>
                 </div>
               ))}
+
+              {loading && (
+                <p className="text-sm text-gray-500 animate-pulse">
+                  Uploading...
+                </p>
+              )}
+
             </div>
           </div>
           <div className="flex gap-4 md:flex-row flex-col">
@@ -250,6 +258,7 @@ function PilesPage() {
               color="iris"
               variant="surface"
               setLoading={setLoading}
+              onUpload={() => fetchIntegrity()}
             />
             <div className="my-2">
               {integrity.length === 0 && (
@@ -276,6 +285,13 @@ function PilesPage() {
                   </button>
                 </div>
               ))}
+
+              {loading && (
+                <p className="text-sm text-gray-500 animate-pulse">
+                  Uploading...
+                </p>
+              )}
+
             </div>
           </div>
           <div className="flex gap-4 md:flex-row flex-col">
@@ -289,6 +305,7 @@ function PilesPage() {
               color="plum"
               variant="surface"
               setLoading={setLoading}
+              onUpload={() => fetchEccentricity()}
             />
             <div className="my-2">
               {eccentricity.length === 0 && (
@@ -315,6 +332,13 @@ function PilesPage() {
                   </button>
                 </div>
               ))}
+
+              {loading && (
+                <p className="text-sm text-gray-500 animate-pulse">
+                  Uploading...
+                </p>
+              )}
+
             </div>
           </div>
         </div>
