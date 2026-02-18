@@ -227,7 +227,7 @@ function Dashboard() {
               <div>
                 <h3 className="font-bold cursor-pointer text-blue-500"
                   onClick={() =>
-                    navigate(`/dashboard/site/${site.id}`)
+                    navigate(`/dashboard/site/${site.id}/phase`)
                   }
                 >{site.name}</h3>
                 <p className="text-sm text-gray-500 mb-2">

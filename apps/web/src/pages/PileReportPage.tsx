@@ -20,7 +20,7 @@ import StatusBar from "../components/pile-report/StatusBar";
  */
 const cleanReportData = (data: any) => {
   const { id, status, isLocked, submittedAt, createdAt, updatedAt, ...rest } = data;
-  const datePart = data.reportDate;
+  const datePart = data.boringDate;
 
   return {
     ...rest,
@@ -29,6 +29,7 @@ const cleanReportData = (data: any) => {
     pourEndTime: toISO(data.pourEndTime),
     totalCageWeight: parseFloat(data.pile.totalCageWeight) || 0,
     msLinerLength: parseFloat(data.pile.msLinerLength) || 0,
+    boringDate: toISO(data.boringDate),
     pile: {
       id: data.pile.id as number,
       diameter: parseFloat(data.pile.diameter) || 0,
@@ -55,7 +56,7 @@ const cleanReportData = (data: any) => {
 };
 
 export default function PileReportPage() {
-  const { pileId, siteId } = useParams();
+  const { pileId, siteId, phaseId } = useParams();
 
   const methods = useForm({
     defaultValues: {
@@ -118,7 +119,7 @@ export default function PileReportPage() {
       setStatus(autosaveStatus);
       const timer = setTimeout(() => {
         setStatus("idle");
-      }, 3000);
+      }, 5000);
       return () => clearTimeout(timer);
     } else if (autosaveStatus === "error") {
       setStatus(autosaveStatus);
@@ -130,20 +131,22 @@ export default function PileReportPage() {
     <FormProvider {...methods}>
       <form className="space-y-8 p-8" onSubmit={(e) => e.preventDefault()}>
         <div className="flex items-center justify-between">
-          <BackButton to={`/dashboard/site/${siteId}/piles`} />
+          <BackButton to={`/dashboard/site/${siteId}/phase/${phaseId}/piles`} />
 
-          <div className="text-sm font-medium">
-            {status === "saving" && <span className="text-blue-500 animate-pulse">Saving changes...</span>}
-            {status === "saved" && <span className="text-green-600">All changes saved</span>}
-            {status === "error" && <span className="text-red-500">Error saving!</span>}
-          </div>
+          { status !== "idle" &&
+            <div className={`text-sm font-medium fixed z-20 right-10 top-10 p-2 rounded-lg shadow-lg border border-gray-200 ${status === "saving" ? "animate-pulse " : ""} ${status === "saved" || "saving" ? "bg-green-50" : ""} ${status === "error" ? "bg-red-50" : ""}`}>
+              {status === "saving" && <span className="text-blue-500">Saving changes...</span>}
+              {status === "saved" && <span className="text-green-600">All changes saved</span>}
+              {status === "error" && <span className="text-red-500">Error saving!</span>}
+            </div>
+          }
         </div>
 
         <HeaderSection />
         <ConcreteSection />
         <BoringTable />
         <ReinforcementTable />
-        <StatusBar status={status} isLocked={formData.isLocked} />
+        <StatusBar isLocked={formData.isLocked} pileId={Number(pileId)} siteId={Number(siteId)} />
       </form>
     </FormProvider>
   );

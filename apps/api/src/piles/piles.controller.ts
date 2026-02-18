@@ -29,11 +29,25 @@ export class PilesController {
     @Body() body: { pileNumber: string },
     @Req() req,
   ) {
-    return this.pilesService.updatePileNumber(Number(pileId), body.pileNumber, req.user);
+    return this.pilesService.updatePileNumber(
+      Number(pileId),
+      body.pileNumber,
+      req.user,
+    );
   }
 
-  // @Patch(':pileId')
-  // updatePile(@Param('pileId') pileId: string, @Body() body: any) {
-  //   return this.pilesService.updatePile(Number(pileId), body);
-  // }
+  @Patch(':pileId/status')
+  updatePileStatus(
+    @Param('pileId') pileId: string,
+    @Body()
+    body: {
+      integrityStatus?: string;
+      cube7DayStatus?: string;
+      cube28DayStatus?: string;
+      eccentricityStatus?: string;
+    },
+    @Req() req,
+  ) {
+    return this.pilesService.updatePileStatus(Number(pileId), body, req.user);
+  }
 }

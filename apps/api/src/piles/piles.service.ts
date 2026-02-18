@@ -57,6 +57,7 @@ export class PilesService {
     return this.pileRepo.find({
       where: { site: { id: siteId } },
       order: { createdAt: 'ASC', id: 'ASC' },
+      relations: ['executionReport'],
     });
   }
 
@@ -67,6 +68,35 @@ export class PilesService {
     }
     pile.pileNumber = pileNumber;
     pile.updatedBy = { id: user.id } as User;
+    return this.pileRepo.save(pile);
+  }
+
+  async updatePileStatus(
+    pileId: number,
+    body: {
+      integrityStatus?: string;
+      cube7DayStatus?: string;
+      cube28DayStatus?: string;
+      eccentricityStatus?: string;
+    },
+    user?: User,
+  ) {
+    const pile = await this.pileRepo.findOne({ where: { id: pileId } });
+    if (!pile) throw new NotFoundException('Pile not found');
+    if (body.integrityStatus !== undefined)
+      pile.integrityStatus = body.integrityStatus;
+
+    if (body.cube7DayStatus !== undefined)
+      pile.cube7DayStatus = body.cube7DayStatus;
+
+    if (body.cube28DayStatus !== undefined)
+      pile.cube28DayStatus = body.cube28DayStatus;
+
+    if (body.eccentricityStatus !== undefined)
+      pile.eccentricityStatus = body.eccentricityStatus;
+
+    if (user) pile.updatedBy = { id: user.id } as User;
+
     return this.pileRepo.save(pile);
   }
 }

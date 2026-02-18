@@ -10,9 +10,11 @@ export class UsersService {
     private userRepository: Repository<User>,
   ) {}
 
-  async findByEmail(email: string): Promise<User | null> {
+  async findOneByEmailWithPassword(email: string) {
     return this.userRepository.findOne({
       where: { email },
+      select: ['id', 'email', 'password', 'fullName', 'isActive'], // Explicitly include 'password'
+      relations: ['role'],
     });
   }
 

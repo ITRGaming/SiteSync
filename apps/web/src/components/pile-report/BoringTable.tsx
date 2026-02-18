@@ -36,11 +36,8 @@ export default function BoringTable() {
                 </Flex>
 
                 <Flex align="center" gap="2">
-                    <label className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Boring Date:</label>
+                    <label className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Boring Date*:</label>
                     <input type="date" disabled={isLocked} className={inputClass} {...register("boringDate")} />
-                </Flex>
-                <Flex align="center" gap="2">
-                    <Text size="2" className="text-gray-800">Total Logs: {fields.length}</Text>
                 </Flex>
 
                 <Button

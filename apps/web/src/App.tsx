@@ -16,7 +16,7 @@ function App() {
         </ProtectedRoute>
       } />
       <Route
-        path="/dashboard/site/:siteId"
+        path="/dashboard/site/:siteId/phase"
         element={
           <ProtectedRoute>
             <SiteDetail />
@@ -25,7 +25,7 @@ function App() {
       />
 
       <Route
-        path="/dashboard/site/:siteId/piles"
+        path="/dashboard/site/:siteId/phase/:phaseId/piles"
         element={
           <ProtectedRoute>
             <PilesPage />
@@ -34,7 +34,7 @@ function App() {
       />
 
       <Route
-        path="/dashboard/site/:siteId/pile/:pileId/report"
+        path="/dashboard/site/:siteId/phase/:phaseId/pile/:pileId/report"
         element={
           <ProtectedRoute>
             <PileReportPage />

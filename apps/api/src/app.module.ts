@@ -17,6 +17,9 @@ import { SitesModule } from './sites/sites.module';
 import { PhasesModule } from './phases/phases.module';
 import { PilesModule } from './piles/piles.module';
 import { PileReportModule } from './pile-report/pile-report.module';
+import {StorageController} from './storage/storage.controller';
+import { AttachmentsModule } from './attachments/attachments.module';
+import { StorageModule } from './storage/storage.module';
 import * as bcrypt from 'bcrypt';
 
 @Module({
@@ -29,12 +32,17 @@ import * as bcrypt from 'bcrypt';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         type: 'postgres',
-        url: config.get<string>('DATABASE_URL'),
+        // url: config.get<string>('DATABASE_URL'),
+        host: config.get<string>('DB_HOST'),
+        port: parseInt(config.get<string>('DB_PORT') || '5432'),
+        username: config.get<string>('DB_USER'),
+        password: config.get<string>('DB_PASS'),
+        database: config.get<string>('DB_NAME'),
         autoLoadEntities: true,
-        ssl: {
-          rejectUnauthorized: false,
-        },
-        synchronize: false,
+        // ssl: {
+        //   rejectUnauthorized: false,
+        // },
+        synchronize: true,
       }),
     }),
 
@@ -51,8 +59,12 @@ import * as bcrypt from 'bcrypt';
     PilesModule,
 
     PileReportModule,
+
+    AttachmentsModule,
+
+    StorageModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, StorageController],
   providers: [
     AppService,
     {

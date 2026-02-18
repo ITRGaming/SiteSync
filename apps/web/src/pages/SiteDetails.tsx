@@ -2,6 +2,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import BackButton from "../components/common/BackButton";
 import api from "../api/axios";
+import UploadButton from "../components/common/UploadAttachmentsButton";
+import { AttachmentType } from "../utils/attachmentType";
 
 function SiteDetail() {
   const { siteId } = useParams();
@@ -12,6 +14,8 @@ function SiteDetail() {
   const [phases, setPhases] = useState<any[]>([]);
   const [site, setSite] = useState<any | null>(null);
   const [totalPileCount, setTotalPileCount] = useState<number | "">("");
+  const [loading, setLoading] = useState(false);
+  const [drawings, setDrawings] = useState<any[]>([]);
 
   const fetchSites = async () => {
     try {
@@ -79,7 +83,7 @@ function SiteDetail() {
             onClick={() => {
               if (phase.type === "PILES" && phase.totalPileCount !== null) {
                 navigate(
-                  `/dashboard/site/${siteId}/piles`
+                  `/dashboard/site/${siteId}/phase/${phase.id}/piles`
                 );
               }
             }}
@@ -177,6 +181,45 @@ function SiteDetail() {
                 value={totalPileCount}
                 onChange={(e) => setTotalPileCount(Number(e.target.value))}
               />
+              <div className="flex gap-4 md:flex-row flex-col">
+                <UploadButton
+                  siteId={Number(siteId)}
+                  phaseId={Number(pilePhaseId)}
+                  type={AttachmentType.DRAWING}
+                  isPublic={true}
+                  multiple={true}
+                  label="Upload Drawings"
+                  color="amber"
+                  variant="surface"
+                  setLoading={setLoading}
+                />
+                <div className="my-2">
+                  {drawings.length === 0 && (
+                    <p className="text-sm text-gray-500">No attachments uploaded yet</p>
+                  )}
+
+                  {drawings.map((file) => (
+                    <div
+                      key={file.id}
+                      className="border rounded px-3 py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
+                    >
+                      <span className="text-sm break-words">
+                        {file.originalFileName}
+                      </span>
+
+                      <button
+                        onClick={async () => {
+                          const res = await api.get(`/attachments/${file.id}`);
+                          window.open(res.data.url || res.data, "_blank");
+                        }}
+                        className="text-blue-600 hover:underline text-sm"
+                      >
+                        View
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
               <button
                 className="bg-blue-600 text-white px-4 rounded"
                 onClick={async () => startPilePhase()}
