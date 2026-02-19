@@ -18,9 +18,9 @@ export default function HeaderSection() {
                     <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">
                         Pile Number
                     </label>
-                    <h2 className="text-xs bg-gray-50 border-gray-200 text-gray-400">
+                    <Text size="3" weight="medium" className="text-gray-400">
                         {watch("pile.pileNumber")}
-                    </h2>
+                    </Text>
                 </div>
                 <div>
                     <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">

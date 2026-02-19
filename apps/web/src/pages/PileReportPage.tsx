@@ -143,7 +143,7 @@ export default function PileReportPage() {
           }
         </div>
         <div>
-          <Text size="4" weight="bold" className="text-gray-800">Pile Specifications</Text>
+          <Text size="4" weight="bold" className="text-gray-800">Pile Pour Card</Text>
         </div>
 
         <HeaderSection />
