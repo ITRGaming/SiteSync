@@ -57,7 +57,7 @@ export class PilesService {
     return this.pileRepo.find({
       where: { site: { id: siteId } },
       order: { createdAt: 'ASC', id: 'ASC' },
-      relations: ['executionReport'],
+      relations: ['executionReport', 'executionReport.boringLogs'],
     });
   }
 

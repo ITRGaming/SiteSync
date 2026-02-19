@@ -124,6 +124,7 @@ function PilesPage() {
               <tr>
                 <th className="border p-2">Pile No</th>
                 <th className="border p-2">Dia</th>
+                <th className="border p-2">Length</th>
                 <th className="border p-2">Boring Date</th>
                 <th className="border p-2">Concreting Date</th>
                 <th className="border p-2">Cube 7</th>
@@ -146,7 +147,7 @@ function PilesPage() {
               ))}
             </tbody>
           </table>
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6 py-4 border-t border-gray-100">
+          <div className="flex flex-col sm:flex-row lg:justify-center justify-between items-center gap-4 mt-6 py-4 border-t border-gray-100">
             {/* Left Side: Text Info */}
             <Text size="2" color="gray" className="font-medium order-2 ml-2 sm:order-1">
               Showing <span className="text-gray-900">{currentPage}</span> of{" "}
@@ -197,10 +198,12 @@ function PilesPage() {
           </div>
         </div>
       )}
+
+      {/* Attachments */}
       <div className="mt-6 p-6 border border-gray-100">
         <h2 className="text-xl font-bold mb-6 mt-4">Attachments</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="flex gap-4 md:flex-row flex-col">
+          <div className="md:block flex gap-4 flex-col">
             <UploadButton
               siteId={Number(siteId)}
               phaseId={Number(phaseId)}
@@ -247,7 +250,7 @@ function PilesPage() {
 
             </div>
           </div>
-          <div className="flex gap-4 md:flex-row flex-col">
+          <div className="md:block flex gap-4 flex-col">
             <UploadButton
               siteId={Number(siteId)}
               phaseId={Number(phaseId)}
@@ -294,7 +297,7 @@ function PilesPage() {
 
             </div>
           </div>
-          <div className="flex gap-4 md:flex-row flex-col">
+          <div className="md:block flex gap-4 flex-col">
             <UploadButton
               siteId={Number(siteId)}
               phaseId={Number(phaseId)}

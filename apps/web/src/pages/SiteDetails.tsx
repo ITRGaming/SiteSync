@@ -4,6 +4,7 @@ import BackButton from "../components/common/BackButton";
 import api from "../api/axios";
 import UploadButton from "../components/common/UploadAttachmentsButton";
 import { AttachmentType } from "../utils/attachmentType";
+import { Button } from "@radix-ui/themes";
 
 function SiteDetail() {
   const { siteId } = useParams();
@@ -178,67 +179,70 @@ function SiteDetail() {
                 Close
               </button>
             </div>
-            <div className="flex gap-2 mb-4 flex-col md:flex-row">
-              <input
-                type="number"
-                placeholder="Pile Count"
-                className="border p-2 flex-1 rounded"
-                value={totalPileCount}
-                onChange={(e) => setTotalPileCount(Number(e.target.value))}
-              />
-              <div className="flex gap-4 md:flex-row flex-col">
-                <UploadButton
-                  siteId={Number(siteId)}
-                  phaseId={Number(pilePhaseId)}
-                  type={AttachmentType.DRAWING}
-                  isPublic={true}
-                  multiple={true}
-                  label="Upload Drawings"
-                  color="amber"
-                  variant="surface"
-                  setLoading={setLoading}
-                  onUpload={() => fetchDrawings()}
-                />
-                <div className="my-2">
-                  {drawings.length === 0 && (
-                    <p className="text-sm text-gray-500">No attachments uploaded yet</p>
-                  )}
-
-                  {drawings.map((file) => (
-                    <div
-                      key={file.id}
-                      className="border rounded px-3 py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
-                    >
-                      <span className="text-sm break-words">
-                        {file.originalFileName}
-                      </span>
-
-                      <button
-                        onClick={async () => {
-                          const res = await api.get(`/attachments/${file.id}`);
-                          window.open(res.data.url || res.data, "_blank");
-                        }}
-                        className="text-blue-600 hover:underline text-sm"
+            <div className="grid grid-rows-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <input
+                    type="number"
+                    placeholder="Pile Count"
+                    className="border p-2 flex-1 rounded"
+                    value={totalPileCount}
+                    onChange={(e) => setTotalPileCount(Number(e.target.value))}
+                  />
+                </div>
+                <div >
+                  <UploadButton
+                    siteId={Number(siteId)}
+                    phaseId={Number(pilePhaseId)}
+                    type={AttachmentType.DRAWING}
+                    isPublic={true}
+                    multiple={true}
+                    label="Upload Drawings"
+                    color="amber"
+                    variant="surface"
+                    setLoading={setLoading}
+                    onUpload={() => fetchDrawings()}
+                  />
+                  <div className="my-2">
+                    {drawings.length === 0 && (
+                      <p className="text-sm text-gray-500">No attachments uploaded yet</p>
+                    )}
+                    {drawings.map((file) => (
+                      <div
+                        key={file.id}
+                        className="border rounded px-3 py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
                       >
-                        View
-                      </button>
-                    </div>
-                  ))}
-
-                  {loading && (
-                    <p className="text-sm text-gray-500 animate-pulse">
-                      Uploading...
-                    </p>
-                  )}
-
+                        <span className="text-sm break-words">
+                          {file.originalFileName}
+                        </span>
+                        <button
+                          onClick={async () => {
+                            const res = await api.get(`/attachments/${file.id}`);
+                            window.open(res.data.url || res.data, "_blank");
+                          }}
+                          className="text-blue-600 hover:underline text-sm"
+                        >
+                          View
+                        </button>
+                      </div>
+                    ))}
+                    {loading && (
+                      <p className="text-sm text-gray-500 animate-pulse">
+                        Uploading...
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
-              <button
-                className="bg-blue-600 text-white px-4 rounded"
-                onClick={async () => startPilePhase()}
-              >
-                Start Pile Phase
-              </button>
+              <div>
+                <Button
+                  variant="soft"
+                  color="jade"
+                  onClick={async () => startPilePhase()}
+                >
+                  Start Pile Phase
+                </Button>
+              </div>
             </div>
           </div>
         </div>

@@ -15,6 +15,7 @@ type Props = {
   label?: string;
   color?: string;
   variant?: string;
+  size?: string;
   disabled?: boolean;
   onUpload?: () => void;
   setLoading?: (value: boolean) => void;
@@ -30,6 +31,7 @@ export default function UploadButton({
   label = "Upload",
   color = "blue",
   variant = "soft",
+  size = "2",
   disabled = false,
   onUpload,
   setLoading,
@@ -72,6 +74,7 @@ export default function UploadButton({
         onClick={() => inputRef.current?.click()}
         variant={variant as any}
         color={color as any}
+        size={size as any}
       >
         {label}
       </Button>
