@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { useParams } from "react-router-dom";
 import api from "../api/axios";
+import { Text } from "@radix-ui/themes";
 
 // Hooks & Utils
 import { useAutosave } from "../hooks/useAutoSave";
@@ -140,6 +141,9 @@ export default function PileReportPage() {
               {status === "error" && <span className="text-red-500">Error saving!</span>}
             </div>
           }
+        </div>
+        <div>
+          <Text size="4" weight="bold" className="text-gray-800">Pile Specifications</Text>
         </div>
 
         <HeaderSection />
