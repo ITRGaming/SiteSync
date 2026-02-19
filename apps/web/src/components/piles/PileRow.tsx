@@ -55,6 +55,7 @@ export default function PileRow({
     const fetchCube7DayFiles = async () => {
         const res = await api.get(`/attachments/by-pile/${pile.id}/type/${AttachmentType.CUBE_7_DAY}`);
         setCube7DayFiles(res.data);
+        onRefresh()
     };
     const fetchCube28DayFiles = async () => {
         const res = await api.get(`/attachments/by-pile/${pile.id}/type/${AttachmentType.CUBE_28_DAY}`);
@@ -64,24 +65,13 @@ export default function PileRow({
     useEffect(() => {
         fetchCube7DayFiles();
         fetchCube28DayFiles();
+        onRefresh()
     }, []);
 
     const updateStatus = async (field: string, value: string) => {
         await api.patch(`/piles/${pile.id}/status`, {
             [field]: value,
         });
-    };
-
-    const uploadFile = async (file: File, type: string) => {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("siteId", String(siteId));
-        formData.append("pileId", String(pile.id));
-        formData.append("type", type);
-        formData.append("isPublic", "false");
-
-        await api.post("/attachments/upload", formData);
-        onRefresh();
     };
 
     return (
