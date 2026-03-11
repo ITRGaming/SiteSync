@@ -112,6 +112,7 @@ export class AppModule implements OnModuleInit {
           email: 'superadmin@site.com',
           password: hashedPassword,
           role: superAdminRole,
+          mustChangePassword: false,
         }),
       );
     }
@@ -134,6 +135,7 @@ export class AppModule implements OnModuleInit {
           email: 'engineer@site.com',
           password: hashedPassword,
           role: engineerRole,
+          mustChangePassword: false,
         }),
       );
     }
