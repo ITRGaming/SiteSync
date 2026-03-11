@@ -34,7 +34,26 @@ export class SitesController {
     @Param('userId') userId: string,
     @Request() req,
   ) {
-    return this.sitesService.assignEngineer(Number(siteId), Number(userId), req.user);
+    return this.sitesService.assignEngineer(
+      Number(siteId),
+      Number(userId),
+      req.user,
+    );
+  }
+
+  // Unassign Engineer
+  @Delete(':siteId/assign/:userId')
+  @Roles('SUPER_ADMIN', 'ADMIN')
+  unassignEngineer(
+    @Param('siteId') siteId: string,
+    @Param('userId') userId: string,
+    @Request() req,
+  ) {
+    return this.sitesService.unassignEngineer(
+      Number(siteId),
+      Number(userId),
+      req.user,
+    );
   }
 
   // Get Sites for Logged-in User

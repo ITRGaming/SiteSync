@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
-import  { IconButton } from "@radix-ui/themes";
-import { TrashIcon, ResetIcon, ExitIcon } from "@radix-ui/react-icons";
+import { IconButton, Button } from "@radix-ui/themes";
+import { TrashIcon, ResetIcon, ExitIcon, PersonIcon, GearIcon, Cross2Icon } from "@radix-ui/react-icons";
 import { useNavigate } from "react-router-dom";
 
 
@@ -83,6 +83,16 @@ function Dashboard() {
     fetchSites();
   };
 
+  const unassignUser = async (siteId: number, userId: string) => {
+    if (!window.confirm("Remove this engineer from the site?")) return;
+    try {
+      await api.delete(`/sites/${siteId}/assign/${userId}`);
+      fetchSites();
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Error unassigning");
+    }
+  };
+
 
   useEffect(() => {
     fetchUserDetails();
@@ -140,11 +150,21 @@ function Dashboard() {
 
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
-      <div className="flex justify-between mb-6">
+      <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Dashboard</h1>
-        <IconButton variant="solid" color="red" size="2" onClick={logout}>
-          <ExitIcon width="18" height="18"/>
-        </IconButton>
+        <div className="flex gap-4">
+          {isAdmin && (
+            <Button variant="soft" color="indigo" onClick={() => navigate("/users")}>
+              <GearIcon /> Manage Users
+            </Button>
+          )}
+          <Button variant="soft" color="gray" onClick={() => navigate("/profile")}>
+            <PersonIcon /> Profile
+          </Button>
+          <IconButton variant="solid" color="red" size="2" onClick={logout} title="Logout">
+            <ExitIcon width="18" height="18" />
+          </IconButton>
+        </div>
       </div>
 
       <div className="text-gray-600 flex flex-col justify-center items-center mb-8">
@@ -193,9 +213,8 @@ function Dashboard() {
       <div className="flex gap-4 mb-4">
         <button
           onClick={() => setActiveTab("active")}
-          className={`px-4 py-2 rounded ${
-            activeTab === "active" ? "bg-blue-600 text-white" : "bg-gray-200"
-          }`}
+          className={`px-4 py-2 rounded ${activeTab === "active" ? "bg-blue-600 text-white" : "bg-gray-200"
+            }`}
         >
           Active
         </button>
@@ -203,9 +222,8 @@ function Dashboard() {
           onClick={() => {
             setActiveTab("deleted");
           }}
-          className={`px-4 py-2 rounded ${
-            activeTab === "deleted" ? "bg-blue-600 text-white" : "bg-gray-200"
-          }`}
+          className={`px-4 py-2 rounded ${activeTab === "deleted" ? "bg-blue-600 text-white" : "bg-gray-200"
+            }`}
         >
           Deleted
         </button>
@@ -233,16 +251,40 @@ function Dashboard() {
                 <p className="text-sm text-gray-500 mb-2">
                   ({site.location})
                 </p>
-                { site.description && (
-                  <div>
+                {site.description && (
+                  <div className="mb-2">
                     <h4 className="text-base text-gray-600">Description:</h4>
                     <p className="text-sm text-gray-500">
                       {site.description}
                     </p>
                   </div>
                 )}
+                {site.assignments && site.assignments.length > 0 && (
+                  <div>
+                    <h4 className="text-base text-gray-600 mb-1">Assigned Engineers:</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {site.assignments.map((assignment: any) => (
+                        <div key={assignment.id} className="flex items-center gap-1 bg-blue-50 text-blue-800 border border-blue-200 px-2 py-1 rounded text-xs shadow-sm">
+                          <span>{assignment.user?.fullName}</span>
+                          {isAdmin && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                unassignUser(site.id, assignment.user.id);
+                              }}
+                              className="hover:bg-blue-200 rounded p-0.5 text-blue-600 hover:text-blue-900 transition-colors"
+                              title="Remove Assignment"
+                            >
+                              <Cross2Icon width="12" height="12" />
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-              {isAdmin && (
+              {isAdmin && activeTab === "active" && (
                 <div className="relative">
                   <button
                     className="border px-3 py-1 rounded bg-white"
@@ -271,51 +313,55 @@ function Dashboard() {
                     })}
                   </div>
 
-                  { openDropdown === site.id && (
+                  {openDropdown === site.id && (
                     <div className="absolute z-10 bg-white border mt-2 p-3 rounded shadow w-56 max-h-48 overflow-y-auto"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      {assignableUsers.map((user) => {
-                        const selected = selectedUsers[site.id] || [];
-                        const isChecked = selected.includes(user.id.toString());
+                      {assignableUsers.filter((u) => !site.assignments?.some((a: any) => a.user?.id === u.id)).length === 0 ? (
+                        <p className="text-sm text-gray-500 mb-2">All eligible users are already assigned.</p>
+                      ) : assignableUsers
+                        .filter((u) => !site.assignments?.some((a: any) => a.user?.id === u.id))
+                        .map((user) => {
+                          const selected = selectedUsers[site.id] || [];
+                          const isChecked = selected.includes(user.id.toString());
 
-                        return (
-                          <>
-                            <label
-                              key={user.id}
-                              className="flex items-center gap-2 mb-2 text-sm"
-                            >
-                              <input
-                                type="checkbox"
-                                checked={isChecked}
-                                onChange={() => {
-                                  setSelectedUsers((prev) => {
-                                    const current = prev[site.id] || [];
+                          return (
+                            <>
+                              <label
+                                key={user.id}
+                                className="flex items-center gap-2 mb-2 text-sm"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={isChecked}
+                                  onChange={() => {
+                                    setSelectedUsers((prev) => {
+                                      const current = prev[site.id] || [];
 
-                                    if (isChecked) {
-                                      return {
-                                        ...prev,
-                                        [site.id]: current.filter(
-                                          (id) => id !== user.id.toString()
-                                        ),
-                                      };
-                                    } else {
-                                      return {
-                                        ...prev,
-                                        [site.id]: [
-                                          ...current,
-                                          user.id.toString(),
-                                        ],
-                                      };
-                                    }
-                                  });
-                                }}
-                              />
-                              {user.fullName}
-                            </label>
-                          </>
-                        );
-                      })}
+                                      if (isChecked) {
+                                        return {
+                                          ...prev,
+                                          [site.id]: current.filter(
+                                            (id) => id !== user.id.toString()
+                                          ),
+                                        };
+                                      } else {
+                                        return {
+                                          ...prev,
+                                          [site.id]: [
+                                            ...current,
+                                            user.id.toString(),
+                                          ],
+                                        };
+                                      }
+                                    });
+                                  }}
+                                />
+                                {user.fullName}
+                              </label>
+                            </>
+                          );
+                        })}
                       <button
                         onClick={() => {
                           assignUsers(site.id);
@@ -333,26 +379,26 @@ function Dashboard() {
                 <span className="text-xs text-gray-400 flex justify-end mb-4">
                   ID: {site.id}
                 </span>
-                  <div className="flex gap-2 justify-end">
-                    {activeTab === "active" && isAdmin && (
-                      <IconButton variant="soft" color="red" size="2" onClick={() => softDeleteSite(site.id)}>
-                        <TrashIcon width="18" height="18"/>
+                <div className="flex gap-2 justify-end">
+                  {activeTab === "active" && isAdmin && (
+                    <IconButton variant="soft" color="red" size="2" onClick={() => softDeleteSite(site.id)}>
+                      <TrashIcon width="18" height="18" />
+                    </IconButton>
+                  )}
+                  {activeTab === "deleted" && isAdmin && (
+                    <>
+                      <IconButton variant="solid" color="green" size="2" onClick={() => restoreSite(site.id)}>
+                        <ResetIcon width="18" height="18" />
                       </IconButton>
-                    )}
-                    {activeTab === "deleted" && isAdmin && (
-                      <>
-                        <IconButton variant="solid" color="green" size="2" onClick={() => restoreSite(site.id)}>
-                          <ResetIcon width="18" height="18"/>
+
+                      {role === "SUPER_ADMIN" && (
+                        <IconButton variant="solid" color="red" size="2" onClick={() => hardDeleteSite(site.id)}>
+                          <TrashIcon width="18" height="18" />
                         </IconButton>
-                    
-                        { role === "SUPER_ADMIN" && (
-                          <IconButton variant="solid" color="red" size="2" onClick={() => hardDeleteSite(site.id)}>
-                            <TrashIcon width="18" height="18"/>
-                          </IconButton>
-                        )}
-                      </>
-                    )}
-                  </div>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
             </li>
           ))}

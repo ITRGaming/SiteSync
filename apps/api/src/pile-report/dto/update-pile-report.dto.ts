@@ -9,6 +9,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ReportStatus } from '../pile-execution-report.entity';
+import { IntegrityStatus, EccentricityStatus } from '../../piles/pile.entity';
 
 class PileDto {
   @IsNumber()
@@ -32,6 +33,22 @@ class PileDto {
   @IsOptional()
   @IsString()
   location?: string;
+
+  @IsOptional()
+  @IsEnum(IntegrityStatus)
+  integrityStatus?: IntegrityStatus;
+
+  @IsOptional()
+  @IsString()
+  cube7DayStatus?: string;
+
+  @IsOptional()
+  @IsString()
+  cube28DayStatus?: string;
+
+  @IsOptional()
+  @IsEnum(EccentricityStatus)
+  eccentricityStatus?: EccentricityStatus;
 }
 
 class BoringLogDto {

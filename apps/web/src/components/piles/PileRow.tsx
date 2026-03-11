@@ -2,6 +2,7 @@ import api from "../../api/axios";
 import { useState, useEffect } from "react";
 import UploadButton from "../common/UploadAttachmentsButton";
 import { AttachmentType } from "../../utils/attachmentType";
+import { IntegrityStatus, EccentricityStatus } from "../../utils/statusEnums";
 
 type Props = {
     pile: any;
@@ -149,7 +150,7 @@ export default function PileRow({
                         siteId={Number(siteId)}
                         pileId={pile.id}
                         type={AttachmentType.CUBE_7_DAY}
-                        label="Upload Other"
+                        label="Upload Cube 7 report"
                         color="gray"
                         variant="soft"
                         size="1"
@@ -207,7 +208,7 @@ export default function PileRow({
                         siteId={Number(siteId)}
                         pileId={pile.id}
                         type={AttachmentType.CUBE_28_DAY}
-                        label="Upload Other"
+                        label="Upload Cube 28 report"
                         color="gray"
                         variant="surface"
                         size="1"
@@ -252,26 +253,40 @@ export default function PileRow({
 
             {/* Integrity */}
             <td className="border p-2">
-                <input
+                <select
+                    title="Integrity Status"
                     defaultValue={pile.integrityStatus || ""}
-                    onBlur={(e) =>
+                    onChange={(e) =>
                         updateStatus("integrityStatus", e.target.value)
                     }
-                    className="border p-1 w-full text-xs"
-                    placeholder="Status"
-                />
+                    className="border p-1 w-full text-xs bg-white"
+                >
+                    <option value="" disabled>Status</option>
+                    {Object.values(IntegrityStatus).map((status) => (
+                        <option key={status} value={status}>
+                            {status === "SOFT_TOE" ? "Soft Toe" : status}
+                        </option>
+                    ))}
+                </select>
             </td>
 
             {/* Eccentricity */}
             <td className="border p-2">
-                <input
+                <select
+                    title="Eccentricity Status"
                     defaultValue={pile.eccentricityStatus || ""}
-                    onBlur={(e) =>
+                    onChange={(e) =>
                         updateStatus("eccentricityStatus", e.target.value)
                     }
-                    className="border p-1 w-full text-xs"
-                    placeholder="Status"
-                />
+                    className="border p-1 w-full text-xs bg-white"
+                >
+                    <option value="" disabled>Status</option>
+                    {Object.values(EccentricityStatus).map((status) => (
+                        <option key={status} value={status}>
+                            {status}
+                        </option>
+                    ))}
+                </select>
             </td>
         </tr>
     );

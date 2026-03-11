@@ -26,21 +26,49 @@ export class SitesService {
     private phaseRepo: Repository<Phase>,
   ) {}
 
-  async createSite(data: {
-    name: string;
-    location?: string;
-    description?: string;
-  }, user: any) {
+  async createSite(
+    data: {
+      name: string;
+      location?: string;
+      description?: string;
+    },
+    user: any,
+  ) {
     const site = this.siteRepo.create(data);
     const savedSite = await this.siteRepo.save(site);
 
     // Create default phase
     await this.phaseRepo.save([
-      { type: PhaseType.PILES, site: savedSite, createdBy: { id: user.id } as User, updatedBy: { id: user.id } as User },
-      { type: PhaseType.PLINTH, site: savedSite, createdBy: { id: user.id } as User, updatedBy: { id: user.id } as User },
-      { type: PhaseType.RCC, site: savedSite, createdBy: { id: user.id } as User, updatedBy: { id: user.id } as User },
-      { type: PhaseType.FINISHING, site: savedSite, createdBy: { id: user.id } as User, updatedBy: { id: user.id } as User },
-      { type: PhaseType.PARKING, site: savedSite, createdBy: { id: user.id } as User, updatedBy: { id: user.id } as User },
+      {
+        type: PhaseType.PILES,
+        site: savedSite,
+        createdBy: { id: user.id } as User,
+        updatedBy: { id: user.id } as User,
+      },
+      {
+        type: PhaseType.PLINTH,
+        site: savedSite,
+        createdBy: { id: user.id } as User,
+        updatedBy: { id: user.id } as User,
+      },
+      {
+        type: PhaseType.RCC,
+        site: savedSite,
+        createdBy: { id: user.id } as User,
+        updatedBy: { id: user.id } as User,
+      },
+      {
+        type: PhaseType.FINISHING,
+        site: savedSite,
+        createdBy: { id: user.id } as User,
+        updatedBy: { id: user.id } as User,
+      },
+      {
+        type: PhaseType.PARKING,
+        site: savedSite,
+        createdBy: { id: user.id } as User,
+        updatedBy: { id: user.id } as User,
+      },
     ]);
 
     return savedSite;
@@ -76,9 +104,31 @@ export class SitesService {
       );
     }
 
-    const assignment = this.assignmentRepo.create({ site, user, assignedBy: { id: user.id } as User });
+    const assignment = this.assignmentRepo.create({
+      site,
+      user,
+      assignedBy: { id: user.id } as User,
+    });
 
     return this.assignmentRepo.save(assignment);
+  }
+
+  async unassignEngineer(siteId: number, userId: number, user: any) {
+    const site = await this.siteRepo.findOne({ where: { id: siteId } });
+    if (!site) throw new NotFoundException('Site not found');
+
+    const assignment = await this.assignmentRepo.findOne({
+      where: {
+        site: { id: siteId },
+        user: { id: userId },
+      },
+    });
+
+    if (!assignment) {
+      throw new NotFoundException('User is not assigned to this site');
+    }
+
+    return this.assignmentRepo.remove(assignment);
   }
 
   async getSitesForUser(user: any, isActive?: string) {
@@ -87,12 +137,13 @@ export class SitesService {
     if (user.role === 'SUPER_ADMIN') {
       return this.siteRepo.find({
         where: { isActive: activeFilter },
+        relations: ['assignments', 'assignments.user'],
       });
     }
 
     const assignments = await this.assignmentRepo.find({
       where: { user: { id: user.userId }, site: { isActive: activeFilter } },
-      relations: ['site'],
+      relations: ['site', 'site.assignments', 'site.assignments.user'],
     });
 
     return assignments.map((a) => a.site);

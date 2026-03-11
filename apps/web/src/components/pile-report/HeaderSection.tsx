@@ -1,6 +1,7 @@
 import { useFormContext } from "react-hook-form";
 import { LockClosedIcon } from "@radix-ui/react-icons";
 import { Text, Flex } from "@radix-ui/themes";
+import { IntegrityStatus, EccentricityStatus } from "../../utils/statusEnums";
 
 export default function HeaderSection() {
     const { register, watch } = useFormContext();
@@ -111,6 +112,78 @@ export default function HeaderSection() {
                             }`}
                         {...register("pile.linerTopLevel")}
                     />
+                </div>
+                <div>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">
+                        Integrity Status
+                    </label>
+                    <select
+                        disabled={isLocked}
+                        className={`w-full bg-white border rounded-md px-3 py-2 text-sm transition-all outline-none
+                            ${isLocked
+                                ? "bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed"
+                                : "border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                            }`}
+                        {...register("pile.integrityStatus")}
+                    >
+                        <option value="">Select Status</option>
+                        {Object.values(IntegrityStatus).map((state) => (
+                            <option key={state} value={state}>
+                                {state === "SOFT_TOE" ? "Soft Toe" : state}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <div>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">
+                        Cube 7 Day Status
+                    </label>
+                    <input
+                        type="text"
+                        disabled={isLocked}
+                        className={`w-full bg-white border rounded-md px-3 py-2 text-sm transition-all outline-none
+                            ${isLocked
+                                ? "bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed"
+                                : "border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                            }`}
+                        {...register("pile.cube7DayStatus")}
+                    />
+                </div>
+                <div>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">
+                        Cube 28 Day Status
+                    </label>
+                    <input
+                        type="text"
+                        disabled={isLocked}
+                        className={`w-full bg-white border rounded-md px-3 py-2 text-sm transition-all outline-none
+                            ${isLocked
+                                ? "bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed"
+                                : "border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                            }`}
+                        {...register("pile.cube28DayStatus")}
+                    />
+                </div>
+                <div>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">
+                        Eccentricity Status
+                    </label>
+                    <select
+                        disabled={isLocked}
+                        className={`w-full bg-white border rounded-md px-3 py-2 text-sm transition-all outline-none
+                            ${isLocked
+                                ? "bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed"
+                                : "border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                            }`}
+                        {...register("pile.eccentricityStatus")}
+                    >
+                        <option value="">Select Status</option>
+                        {Object.values(EccentricityStatus).map((state) => (
+                            <option key={state} value={state}>
+                                {state}
+                            </option>
+                        ))}
+                    </select>
                 </div>
             </div>
         </div>

@@ -19,6 +19,19 @@ export enum PileStatus {
   COMPLETED = 'COMPLETED',
 }
 
+export enum IntegrityStatus {
+  OK = 'OK',
+  SOFT_TOE = 'SOFT_TOE',
+  OTHER = 'OTHER',
+}
+
+export enum EccentricityStatus {
+  OK = 'OK',
+  BELOW_50MM = '0 - 50mm',
+  BELOW_100MM = '50 - 100mm',
+  ABOVE_100MM = '100mm & Above',
+}
+
 @Entity()
 export class Pile {
   @PrimaryGeneratedColumn()
@@ -46,8 +59,12 @@ export class Pile {
 
   // 🔥 Free text test status per pile (as you required)
 
-  @Column({ type: 'text', nullable: true })
-  integrityStatus: string;
+  @Column({
+    type: 'enum',
+    nullable: true,
+    enum: IntegrityStatus,
+  })
+  integrityStatus: IntegrityStatus;
 
   @Column({ type: 'text', nullable: true })
   cube7DayStatus: string;
@@ -55,8 +72,12 @@ export class Pile {
   @Column({ type: 'text', nullable: true })
   cube28DayStatus: string;
 
-  @Column({ type: 'text', nullable: true })
-  eccentricityStatus: string;
+  @Column({
+    type: 'enum',
+    nullable: true,
+    enum: EccentricityStatus,
+  })
+  eccentricityStatus: EccentricityStatus;
 
   @ManyToOne(() => Site, (site) => site.piles, { onDelete: 'CASCADE' })
   site: Site;

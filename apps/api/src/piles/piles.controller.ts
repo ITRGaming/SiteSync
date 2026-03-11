@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Patch, Param, Body, Req } from '@nestjs/common';
 import { PilesService } from './piles.service';
+import { IntegrityStatus, EccentricityStatus } from './pile.entity';
 
 @Controller('piles')
 export class PilesController {
@@ -41,10 +42,10 @@ export class PilesController {
     @Param('pileId') pileId: string,
     @Body()
     body: {
-      integrityStatus?: string;
+      integrityStatus?: IntegrityStatus;
       cube7DayStatus?: string;
       cube28DayStatus?: string;
-      eccentricityStatus?: string;
+      eccentricityStatus?: EccentricityStatus;
     },
     @Req() req,
   ) {

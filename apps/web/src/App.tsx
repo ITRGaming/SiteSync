@@ -5,6 +5,9 @@ import SiteDetail from "./pages/SiteDetails";
 import PilesPage from "./pages/PilesPage";
 import Dashboard from "./pages/Dashboard";
 import PileReportPage from "./pages/PileReportPage";
+import UsersManagement from "./pages/UsersManagement";
+import Profile from "./pages/Profile";
+import ChangePassword from "./pages/ChangePassword";
 
 function App() {
   return (
@@ -13,6 +16,21 @@ function App() {
       <Route path="/dashboard" element={
         <ProtectedRoute>
           <Dashboard />
+        </ProtectedRoute>
+      } />
+      <Route path="/change-password" element={
+        <ProtectedRoute>
+          <ChangePassword />
+        </ProtectedRoute>
+      } />
+      <Route path="/profile" element={
+        <ProtectedRoute>
+          <Profile />
+        </ProtectedRoute>
+      } />
+      <Route path="/users" element={
+        <ProtectedRoute>
+          <UsersManagement />
         </ProtectedRoute>
       } />
       <Route

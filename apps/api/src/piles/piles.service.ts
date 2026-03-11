@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Pile } from './pile.entity';
+import { Pile, IntegrityStatus, EccentricityStatus } from './pile.entity';
 import { Phase, PhaseType } from '../phases/phase.entity';
 import { User } from 'src/users/user.entity';
 
@@ -74,17 +74,17 @@ export class PilesService {
   async updatePileStatus(
     pileId: number,
     body: {
-      integrityStatus?: string;
+      integrityStatus?: any;
       cube7DayStatus?: string;
       cube28DayStatus?: string;
-      eccentricityStatus?: string;
+      eccentricityStatus?: any;
     },
     user?: User,
   ) {
     const pile = await this.pileRepo.findOne({ where: { id: pileId } });
     if (!pile) throw new NotFoundException('Pile not found');
     if (body.integrityStatus !== undefined)
-      pile.integrityStatus = body.integrityStatus;
+      pile.integrityStatus = body.integrityStatus as IntegrityStatus;
 
     if (body.cube7DayStatus !== undefined)
       pile.cube7DayStatus = body.cube7DayStatus;
@@ -93,7 +93,7 @@ export class PilesService {
       pile.cube28DayStatus = body.cube28DayStatus;
 
     if (body.eccentricityStatus !== undefined)
-      pile.eccentricityStatus = body.eccentricityStatus;
+      pile.eccentricityStatus = body.eccentricityStatus as EccentricityStatus;
 
     if (user) pile.updatedBy = { id: user.id } as User;
 
