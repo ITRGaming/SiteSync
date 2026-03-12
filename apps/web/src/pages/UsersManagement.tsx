@@ -266,7 +266,7 @@ export default function UsersManagement() {
                                 value={editData.role}
                                 onChange={(e) => setEditData({ ...editData, role: e.target.value })}
                             >
-                                <option value="SUPER_ADMIN">SUPER_ADMIN</option>
+                                <option disabled={currentUserRole === "ADMIN"} value="SUPER_ADMIN">SUPER_ADMIN</option>
                                 <option value="ADMIN">ADMIN</option>
                                 <option value="ENGINEER">ENGINEER</option>
                             </select>

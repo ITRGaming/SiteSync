@@ -32,7 +32,7 @@ export class SitesService {
       location?: string;
       description?: string;
     },
-    user: any,
+    user: User,
   ) {
     const site = this.siteRepo.create(data);
     const savedSite = await this.siteRepo.save(site);
@@ -74,7 +74,7 @@ export class SitesService {
     return savedSite;
   }
 
-  async assignEngineer(siteId: number, userId: number, user: any) {
+  async assignEngineer(siteId: number, userId: number, user: User) {
     const restrictedRoles = ['SUPER_ADMIN', 'ADMIN'];
 
     const site = await this.siteRepo.findOne({ where: { id: siteId } });
@@ -87,14 +87,14 @@ export class SitesService {
 
     if (!userAsEngineer) throw new NotFoundException('User not found');
 
-    if (restrictedRoles.includes(user.role.name)) {
+    if (restrictedRoles.includes(userAsEngineer.role.name)) {
       throw new BadRequestException('Cannot assign admin users to sites');
     }
 
     const existing = await this.assignmentRepo.findOne({
       where: {
         site: { id: siteId },
-        user: { id: userAsEngineer.id },
+        user: { id: userId },
       },
     });
 
@@ -106,14 +106,14 @@ export class SitesService {
 
     const assignment = this.assignmentRepo.create({
       site,
-      user,
+      user: userAsEngineer,
       assignedBy: { id: user.id } as User,
     });
 
     return this.assignmentRepo.save(assignment);
   }
 
-  async unassignEngineer(siteId: number, userId: number, user: any) {
+  async unassignEngineer(siteId: number, userId: number, user: User) {
     const site = await this.siteRepo.findOne({ where: { id: siteId } });
     if (!site) throw new NotFoundException('Site not found');
 
@@ -133,8 +133,8 @@ export class SitesService {
 
   async getSitesForUser(user: any, isActive?: string) {
     const activeFilter = isActive === undefined ? true : isActive === 'true';
-    // Super Admin sees all
-    if (user.role === 'SUPER_ADMIN') {
+    // Admins sees all
+    if (user.role === 'SUPER_ADMIN' || user.role === 'ADMIN') {
       return this.siteRepo.find({
         where: { isActive: activeFilter },
         relations: ['assignments', 'assignments.user'],
@@ -149,7 +149,7 @@ export class SitesService {
     return assignments.map((a) => a.site);
   }
 
-  async getSiteDetails(id: number, user: any) {
+  async getSiteDetails(id: number, user: User) {
     if (!user) throw new BadRequestException('User not found');
 
     const site = await this.siteRepo.findOne({
@@ -160,7 +160,7 @@ export class SitesService {
     return site;
   }
 
-  async softDelete(id: number, user: any) {
+  async softDelete(id: number, user: User) {
     const site = await this.siteRepo.findOne({ where: { id, isActive: true } });
     if (!site) throw new NotFoundException('Site not found');
 
@@ -169,7 +169,7 @@ export class SitesService {
     return this.siteRepo.save(site);
   }
 
-  async restore(id: number, user: any) {
+  async restore(id: number, user: User) {
     const site = await this.siteRepo.findOne({
       where: { id, isActive: false },
     });
@@ -180,7 +180,7 @@ export class SitesService {
     return this.siteRepo.save(site);
   }
 
-  async hardDelete(id: number, user: any) {
+  async hardDelete(id: number, user: User) {
     const site = await this.siteRepo.findOne({ where: { id } });
     if (!site) throw new NotFoundException('Site not found');
     site.updatedBy = { id: user.id } as User;

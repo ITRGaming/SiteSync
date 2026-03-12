@@ -66,6 +66,7 @@ export class PilesService {
     if (!pile) {
       throw new NotFoundException('Pile not found');
     }
+    if (pile.pileNumber === pileNumber) return pile;
     pile.pileNumber = pileNumber;
     pile.updatedBy = { id: user.id } as User;
     return this.pileRepo.save(pile);

@@ -102,6 +102,9 @@ export class UsersService {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');
 
+    const isChanged = Object.keys(dto).some((key) => dto[key] !== user[key]);
+    if (!isChanged) return user;
+
     if (dto.email && dto.email !== user.email) {
       const existing = await this.userRepository.findOne({
         where: { email: dto.email },
@@ -138,6 +141,14 @@ export class UsersService {
       throw new ForbiddenException('Cannot modify Super Admin role');
     }
 
+    if (currentRole === 'ADMIN' && roleName === 'SUPER_ADMIN') {
+      throw new ForbiddenException(
+        'Only Super Admins can assign the Super Admin role',
+      );
+    }
+
+    if (user.role.name === roleName) return user;
+
     const role = await this.roleRepository.findOne({
       where: { name: roleName },
     });
@@ -173,6 +184,8 @@ export class UsersService {
         'Cannot modify Super Admin activation status',
       );
     }
+
+    if (user.isActive === isActive) return user;
 
     // Prevent self-deactivation
     if (userId === updaterId && !isActive) {
