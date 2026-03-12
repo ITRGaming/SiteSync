@@ -38,6 +38,15 @@ export class UsersController {
     return this.usersService.getUserDetails(Number(req?.user?.userId));
   }
 
+  @Patch('me')
+  updateMe(@Body() dto: UpdateUserDto, @Request() req) {
+    return this.usersService.updateUser(
+      Number(req.user.userId),
+      dto,
+      Number(req.user.userId),
+    );
+  }
+
   @Post()
   @Roles('SUPER_ADMIN')
   createUser(@Body() dto: CreateUserDto, @Request() req) {

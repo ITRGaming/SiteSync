@@ -8,6 +8,10 @@ export default function Profile() {
     const navigate = useNavigate();
     const [me, setMe] = useState<any>(null);
 
+    const [isEditing, setIsEditing] = useState(false);
+    const [editFullName, setEditFullName] = useState("");
+    const [editEmail, setEditEmail] = useState("");
+
     const [oldPassword, setOldPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -18,6 +22,8 @@ export default function Profile() {
         try {
             const res = await api.get("/users/me");
             setMe(res.data);
+            setEditFullName(res.data.fullName);
+            setEditEmail(res.data.email);
         } catch (err) {
             console.error(err);
         }
@@ -26,6 +32,22 @@ export default function Profile() {
     useEffect(() => {
         fetchUserDetails();
     }, []);
+
+    const handleUpdateProfile = async () => {
+        setError("");
+        setSuccess("");
+        try {
+            await api.patch("/users/me", {
+                fullName: editFullName,
+                email: editEmail,
+            });
+            setSuccess("Profile updated successfully!");
+            setIsEditing(false);
+            fetchUserDetails();
+        } catch (err: any) {
+            setError(err.response?.data?.message || "Error updating profile");
+        }
+    };
 
     const handleChangePassword = async () => {
         setError("");
@@ -67,15 +89,63 @@ export default function Profile() {
                 </div>
 
                 <div className="bg-white p-6 rounded shadow">
-                    <h2 className="text-xl font-semibold mb-4 border-b pb-2">User Information</h2>
+                    <div className="flex justify-between items-center mb-4 border-b pb-2">
+                        <h2 className="text-xl font-semibold">User Information</h2>
+                        {!isEditing ? (
+                            <button
+                                onClick={() => setIsEditing(true)}
+                                className="text-blue-600 hover:text-blue-800 text-sm font-semibold"
+                            >
+                                Edit Info
+                            </button>
+                        ) : (
+                            <div className="space-x-4">
+                                <button
+                                    onClick={handleUpdateProfile}
+                                    className="text-green-600 hover:text-green-800 text-sm font-semibold"
+                                >
+                                    Save
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setIsEditing(false);
+                                        setEditFullName(me.fullName);
+                                        setEditEmail(me.email);
+                                    }}
+                                    className="text-gray-600 hover:text-gray-800 text-sm font-semibold"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <p className="text-sm text-gray-500 font-semibold">Full Name</p>
-                            <p className="text-lg">{me.fullName}</p>
+                            {isEditing ? (
+                                <input
+                                    placeholder="Full Name"
+                                    className="w-full p-1 border rounded mt-1"
+                                    value={editFullName}
+                                    onChange={(e) => setEditFullName(e.target.value)}
+                                />
+                            ) : (
+                                <p className="text-lg">{me.fullName}</p>
+                            )}
                         </div>
                         <div>
                             <p className="text-sm text-gray-500 font-semibold">Email Address</p>
-                            <p className="text-lg">{me.email}</p>
+                            {isEditing ? (
+                                <input
+                                    placeholder="Email Address"
+                                    className="w-full p-1 border rounded mt-1"
+                                    value={editEmail}
+                                    onChange={(e) => setEditEmail(e.target.value)}
+                                />
+                            ) : (
+                                <p className="text-lg">{me.email}</p>
+                            )}
                         </div>
                         <div>
                             <p className="text-sm text-gray-500 font-semibold">Role</p>
@@ -90,6 +160,8 @@ export default function Profile() {
                             </span>
                         </div>
                     </div>
+                    {isEditing && error && <p className="text-red-500 text-sm mt-4">{error}</p>}
+                    {isEditing && success && <p className="text-green-600 text-sm mt-4">{success}</p>}
                 </div>
 
                 <div className="bg-white p-6 rounded shadow">
@@ -130,8 +202,8 @@ export default function Profile() {
                             />
                         </div>
 
-                        {error && <p className="text-red-500 text-sm">{error}</p>}
-                        {success && <p className="text-green-600 text-sm">{success}</p>}
+                        {!isEditing && error && <p className="text-red-500 text-sm">{error}</p>}
+                        {!isEditing && success && <p className="text-green-600 text-sm">{success}</p>}
 
                         <button
                             onClick={handleChangePassword}
