@@ -20,6 +20,8 @@ import { PileReportModule } from './pile-report/pile-report.module';
 import { StorageController } from './storage/storage.controller';
 import { AttachmentsModule } from './attachments/attachments.module';
 import { StorageModule } from './storage/storage.module';
+import { PlinthsModule } from './plinths/plinths.module';
+import { RccModule } from './rcc/rcc.module';
 import * as bcrypt from 'bcrypt';
 
 @Module({
@@ -64,6 +66,8 @@ import * as bcrypt from 'bcrypt';
     AttachmentsModule,
 
     StorageModule,
+
+    RccModule,
   ],
   controllers: [AppController, StorageController],
   providers: [

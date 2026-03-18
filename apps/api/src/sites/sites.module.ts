@@ -6,9 +6,10 @@ import { Site } from './site.entity';
 import { SiteAssignment } from './site-assignment.entity';
 import { User } from '../users/user.entity';
 import { Phase } from '../phases/phase.entity';
+import { Rcc } from 'src/rcc/rcc.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Site, SiteAssignment, User, Phase])],
+  imports: [TypeOrmModule.forFeature([Site, SiteAssignment, User, Phase, Rcc])],
   controllers: [SitesController],
   providers: [SitesService],
   exports: [SitesService],

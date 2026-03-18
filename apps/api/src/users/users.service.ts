@@ -120,6 +120,7 @@ export class UsersService {
 
     Object.assign(user, dto);
     user.updatedBy = { id: updater.id } as User;
+    user.updatedAt = new Date();
 
     return this.userRepository.save(user);
   }
@@ -162,6 +163,7 @@ export class UsersService {
 
     user.role = role;
     user.updatedBy = { id: updater.id } as User;
+    user.updatedAt = new Date();
 
     return this.userRepository.save(user);
   }
@@ -200,6 +202,7 @@ export class UsersService {
 
     user.isActive = isActive;
     user.updatedBy = { id: updater.id } as User;
+    user.updatedAt = new Date();
 
     return this.userRepository.save(user);
   }
@@ -248,6 +251,7 @@ export class UsersService {
     user.password = await bcrypt.hash(dto.newPassword, 10);
     user.mustChangePassword = true; // force change again
     user.updatedBy = { id: updater.id } as User;
+    user.updatedAt = new Date();
 
     await this.userRepository.save(user);
     return { success: true };

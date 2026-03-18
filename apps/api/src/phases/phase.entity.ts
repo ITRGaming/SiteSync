@@ -11,6 +11,7 @@ import {
 import { Site } from '../sites/site.entity';
 import { Pile } from '../piles/pile.entity';
 import { User } from 'src/users/user.entity';
+import { Rcc } from 'src/rcc/rcc.entity';
 
 export enum PhaseType {
   PILES = 'PILES',
@@ -51,8 +52,14 @@ export class Phase {
   @OneToMany(() => Pile, (pile) => pile.phase)
   piles: Pile[];
 
+  @OneToMany(() => Rcc, (rcc) => rcc.phase)
+  rccs: Rcc[];
+
   @Column({ nullable: true })
   totalPileCount: number;
+
+  @Column({ nullable: true })
+  totalSlabCount: number;
 
   @CreateDateColumn()
   createdAt: Date;

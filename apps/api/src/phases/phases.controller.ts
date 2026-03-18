@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Req } from '@nestjs/common';
 import { PhasesService } from './phases.service';
 import { Roles } from 'src/auth/roles.decorator';
 
@@ -12,18 +12,37 @@ export class PhasesController {
   }
 
   @Patch(':id')
-  updatePhase(@Param('id') id: string, @Body() body: { action: string }) {
-    return this.phasesService.updatePhase(Number(id), body.action);
+  updatePhase(
+    @Param('id') id: string,
+    @Body() body: { action: string },
+    @Req() req,
+  ) {
+    return this.phasesService.updatePhase(Number(id), body.action, req.user);
   }
 
   @Post(':id/start-piles')
   startPilePhase(
     @Param('id') id: string,
     @Body() body: { totalPileCount: string },
+    @Req() req,
   ) {
     return this.phasesService.startPilePhase(
       Number(id),
       Number(body.totalPileCount),
+      req.user,
+    );
+  }
+
+  @Post(':id/start-rcc')
+  startRccPhase(
+    @Param('id') id: string,
+    @Body() body: { totalSlabCount: string },
+    @Req() req,
+  ) {
+    return this.phasesService.startRccPhase(
+      Number(id),
+      Number(body.totalSlabCount),
+      req.user,
     );
   }
 

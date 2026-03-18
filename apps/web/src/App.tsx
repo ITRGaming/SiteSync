@@ -3,6 +3,7 @@ import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import SiteDetail from "./pages/SiteDetails";
 import PilesPage from "./pages/PilesPage";
+import RccPage from "./pages/RccPage";
 import Dashboard from "./pages/Dashboard";
 import PileReportPage from "./pages/PileReportPage";
 import UsersManagement from "./pages/UsersManagement";
@@ -47,6 +48,15 @@ function App() {
         element={
           <ProtectedRoute>
             <PilesPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/dashboard/site/:siteId/phase/:phaseId/rcc"
+        element={
+          <ProtectedRoute>
+            <RccPage />
           </ProtectedRoute>
         }
       />

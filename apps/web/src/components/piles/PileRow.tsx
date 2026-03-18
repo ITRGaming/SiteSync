@@ -73,6 +73,7 @@ export default function PileRow({
         await api.patch(`/piles/${pile.id}/status`, {
             [field]: value,
         });
+        onRefresh()
     };
 
     return (

@@ -19,18 +19,15 @@ export class PilesService {
     private phaseRepo: Repository<Phase>,
   ) {}
 
-  async createPile(phaseId: number, pileNumber?: string, user?: any) {
+  async createPile(phaseId: number, pileNumber?: string, user?: User) {
     const phase = await this.phaseRepo.findOne({
-      where: { id: phaseId },
+      where: {
+        id: phaseId,
+        type: PhaseType.PILES,
+      },
     });
 
     if (!phase) throw new NotFoundException('Phase not found');
-
-    if (phase.type !== PhaseType.PILES) {
-      throw new BadRequestException(
-        'Piles can only be created under PILES phase',
-      );
-    }
 
     const existing = await this.pileRepo.findOne({
       where: {
@@ -46,8 +43,8 @@ export class PilesService {
     const pile = this.pileRepo.create({
       pileNumber,
       phase,
-      createdBy: { id: user.id } as User,
-      updatedBy: { id: user.id } as User,
+      createdBy: { id: user?.id } as User,
+      updatedBy: { id: user?.id } as User,
     });
 
     return this.pileRepo.save(pile);
@@ -61,14 +58,15 @@ export class PilesService {
     });
   }
 
-  async updatePileNumber(pileId: number, pileNumber: string, user?: any) {
+  async updatePileNumber(pileId: number, pileNumber: string, user?: User) {
     const pile = await this.pileRepo.findOne({ where: { id: pileId } });
     if (!pile) {
       throw new NotFoundException('Pile not found');
     }
     if (pile.pileNumber === pileNumber) return pile;
     pile.pileNumber = pileNumber;
-    pile.updatedBy = { id: user.id } as User;
+    pile.updatedBy = { id: user?.id } as User;
+    pile.updatedAt = new Date();
     return this.pileRepo.save(pile);
   }
 
@@ -96,7 +94,10 @@ export class PilesService {
     if (body.eccentricityStatus !== undefined)
       pile.eccentricityStatus = body.eccentricityStatus as EccentricityStatus;
 
-    if (user) pile.updatedBy = { id: user.id } as User;
+    if (user) {
+      pile.updatedBy = { id: user.id } as User;
+      pile.updatedAt = new Date();
+    }
 
     return this.pileRepo.save(pile);
   }

@@ -12,6 +12,7 @@ import { SiteAssignment } from './site-assignment.entity';
 import { Phase } from '../phases/phase.entity';
 import { Pile } from 'src/piles/pile.entity';
 import { User } from 'src/users/user.entity';
+import { Rcc } from 'src/rcc/rcc.entity';
 
 @Entity()
 export class Site {
@@ -52,4 +53,7 @@ export class Site {
 
   @OneToMany(() => Pile, (pile) => pile.site)
   piles: Pile[];
+
+  @OneToMany(() => Rcc, (rcc) => rcc.site)
+  rccs: Rcc[];
 }

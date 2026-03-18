@@ -5,9 +5,10 @@ import { PhasesController } from './phases.controller';
 import { Phase } from './phase.entity';
 import { Site } from '../sites/site.entity';
 import { Pile } from 'src/piles/pile.entity';
+import { Rcc } from 'src/rcc/rcc.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Phase, Site, Pile])],
+  imports: [TypeOrmModule.forFeature([Phase, Site, Pile, Rcc])],
   providers: [PhasesService],
   controllers: [PhasesController],
   exports: [PhasesService],

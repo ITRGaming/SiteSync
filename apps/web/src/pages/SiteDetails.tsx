@@ -12,9 +12,11 @@ function SiteDetail() {
   const isAdmin = localStorage.getItem("isAdmin") === "true";
 
   const [pilePhaseId, setPilePhaseId] = useState<number | null>(null);
+  const [rccPhaseId, setRccPhaseId] = useState<number | null>(null);
   const [phases, setPhases] = useState<any[]>([]);
   const [site, setSite] = useState<any | null>(null);
   const [totalPileCount, setTotalPileCount] = useState<number | "">("");
+  const [totalSlabCount, setTotalSlabCount] = useState<number | "">("");
   const [loading, setLoading] = useState(false);
   const [drawings, setDrawings] = useState<any[]>([]);
 
@@ -73,6 +75,20 @@ function SiteDetail() {
     }
   };
 
+  const startRccPhase = async () => {
+    if (!totalSlabCount || totalSlabCount <= 0) {
+      alert("Please enter a valid slab count");
+      return;
+    }
+    try {
+      await api.post(`/phases/${rccPhaseId}/start-rcc`, { totalSlabCount });
+      setRccPhaseId(null);
+      fetchPhases();
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Error starting RCC phase");
+    }
+  };
+
   return (
     <div className="p-8">
       <BackButton/>
@@ -90,6 +106,10 @@ function SiteDetail() {
               if (phase.type === "PILES" && phase.totalPileCount !== null) {
                 navigate(
                   `/dashboard/site/${siteId}/phase/${phase.id}/piles`
+                );
+              } else if (phase.type === "RCC" && phase.totalSlabCount !== null) {
+                navigate(
+                  `/dashboard/site/${siteId}/phase/${phase.id}/rcc`
                 );
               }
             }}
@@ -129,6 +149,12 @@ function SiteDetail() {
                           setPilePhaseId(phase.id);
                         } else {
                           alert("Piles already generated for this phase");
+                        }
+                      } else if (phase.type === "RCC") {
+                        if (phase.totalSlabCount === null) {
+                          setRccPhaseId(phase.id);
+                        } else {
+                          alert("Slabs already generated for this phase");
                         }
                       } else {
                         updatePhase(phase.id, "start");
@@ -241,6 +267,53 @@ function SiteDetail() {
                   onClick={async () => startPilePhase()}
                 >
                   Start Pile Phase
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {rccPhaseId && (
+        <div className="fixed inset-0 z-10 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/30 backdrop-blur-md transition-all duration-300"
+            onClick={() => {
+              setRccPhaseId(null);
+            }}
+          />
+
+          {/* Modal */}
+          <div className="relative bg-white p-6 rounded shadow-lg max-w-[40rem] w-full max-h-[80vh] overflow-auto z-50 animate-fadeIn">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">
+                How many slabs?
+              </h2>
+              <button
+                className="text-sm text-gray-500"
+                onClick={() => {
+                  setRccPhaseId(null);
+                }}
+                >
+                Close
+              </button>
+            </div>
+            <div className="grid grid-cols-1 gap-6">
+              <div className="grid grid-cols-1 gap-6">
+                <input
+                  type="number"
+                  placeholder="Slab Count"
+                  className="border p-2 flex-1 rounded"
+                  value={totalSlabCount}
+                  onChange={(e) => setTotalSlabCount(Number(e.target.value))}
+                />
+              </div>
+              <div className="flex justify-end items-end">
+                <Button
+                  variant="soft"
+                  color="jade"
+                  onClick={async () => startRccPhase()}
+                >
+                  Start RCC Phase
                 </Button>
               </div>
             </div>

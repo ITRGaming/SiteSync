@@ -107,7 +107,7 @@ export class PileExecutionReport {
   })
   boringLogs: BoringLog[];
 
-  @OneToMany(() => ReinforcementEntry, (entry) => entry.report, { 
+  @OneToMany(() => ReinforcementEntry, (entry) => entry.report, {
     cascade: true,
     orphanedRowAction: 'delete',
   })

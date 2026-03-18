@@ -166,6 +166,7 @@ export class SitesService {
 
     site.isActive = false;
     site.updatedBy = { id: user.id } as User;
+    site.updatedAt = new Date();
     return this.siteRepo.save(site);
   }
 
@@ -177,6 +178,7 @@ export class SitesService {
 
     site.isActive = true;
     site.updatedBy = { id: user.id } as User;
+    site.updatedAt = new Date();
     return this.siteRepo.save(site);
   }
 
@@ -184,6 +186,7 @@ export class SitesService {
     const site = await this.siteRepo.findOne({ where: { id } });
     if (!site) throw new NotFoundException('Site not found');
     site.updatedBy = { id: user.id } as User;
+    site.updatedAt = new Date();
     return this.siteRepo.delete(id);
   }
 }
