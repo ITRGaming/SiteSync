@@ -47,13 +47,8 @@ export class SitesController {
   unassignEngineer(
     @Param('siteId') siteId: string,
     @Param('userId') userId: string,
-    @Request() req,
   ) {
-    return this.sitesService.unassignEngineer(
-      Number(siteId),
-      Number(userId),
-      req.user,
-    );
+    return this.sitesService.unassignEngineer(Number(siteId), Number(userId));
   }
 
   // Get Sites for Logged-in User

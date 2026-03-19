@@ -105,15 +105,15 @@ export class SitesService {
     }
 
     const assignment = this.assignmentRepo.create({
-      site,
-      user: userAsEngineer,
+      site: { id: siteId } as Site,
+      user: { id: userId } as User,
       assignedBy: { id: user.id } as User,
     });
 
     return this.assignmentRepo.save(assignment);
   }
 
-  async unassignEngineer(siteId: number, userId: number, user: User) {
+  async unassignEngineer(siteId: number, userId: number) {
     const site = await this.siteRepo.findOne({ where: { id: siteId } });
     if (!site) throw new NotFoundException('Site not found');
 
@@ -142,7 +142,7 @@ export class SitesService {
     }
 
     const assignments = await this.assignmentRepo.find({
-      where: { user: { id: user.userId }, site: { isActive: activeFilter } },
+      where: { user: { id: user.id }, site: { isActive: activeFilter } },
       relations: ['site', 'site.assignments', 'site.assignments.user'],
     });
 

@@ -35,27 +35,27 @@ export class UsersController {
 
   @Get('me')
   getMyDetails(@Request() req) {
-    return this.usersService.getUserDetails(Number(req?.user?.userId));
+    return this.usersService.getUserDetails(Number(req?.user?.id));
   }
 
   @Patch('me')
   updateMe(@Body() dto: UpdateUserDto, @Request() req) {
     return this.usersService.updateUser(
-      Number(req.user.userId),
+      Number(req.user.id),
       dto,
-      Number(req.user.userId),
+      Number(req.user.id),
     );
   }
 
   @Post()
   @Roles('SUPER_ADMIN')
   createUser(@Body() dto: CreateUserDto, @Request() req) {
-    return this.usersService.createUser(dto, Number(req.user.userId));
+    return this.usersService.createUser(dto, Number(req.user.id));
   }
 
   @Patch('me/password')
   changeOwnPassword(@Body() dto: ChangePasswordDto, @Request() req) {
-    return this.usersService.changeOwnPassword(Number(req.user.userId), dto);
+    return this.usersService.changeOwnPassword(Number(req.user.id), dto);
   }
 
   @Patch(':id')
@@ -65,7 +65,7 @@ export class UsersController {
     @Body() dto: UpdateUserDto,
     @Request() req,
   ) {
-    return this.usersService.updateUser(id, dto, Number(req.user.userId));
+    return this.usersService.updateUser(id, dto, Number(req.user.id));
   }
 
   @Patch(':id/role')
@@ -78,7 +78,7 @@ export class UsersController {
     return this.usersService.changeRole(
       id,
       role,
-      Number(req.user.userId),
+      Number(req.user.id),
       req.user.role,
     );
   }
@@ -89,7 +89,7 @@ export class UsersController {
     return this.usersService.setActivationStatus(
       id,
       true,
-      Number(req.user.userId),
+      Number(req.user.id),
       req.user.role,
     );
   }
@@ -100,7 +100,7 @@ export class UsersController {
     return this.usersService.setActivationStatus(
       id,
       false,
-      Number(req.user.userId),
+      Number(req.user.id),
       req.user.role,
     );
   }
@@ -115,7 +115,7 @@ export class UsersController {
     return this.usersService.adminResetPassword(
       id,
       dto,
-      Number(req.user.userId),
+      Number(req.user.id),
       req.user.role,
     );
   }
