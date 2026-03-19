@@ -1,18 +1,13 @@
-import api from "../../api/axios";
-import { useState, useEffect } from "react";
+import api from "../../api/axios";  
 
 type Props = {
     slab: any;
-    siteId: string | undefined;
-    phaseId: string | undefined;
     onRefresh: () => void;
     index?: number;
 };
 
 export default function Slab({
     slab,
-    siteId,
-    phaseId,
     onRefresh,
     index,
 }: Props) {
@@ -38,6 +33,7 @@ export default function Slab({
             {/* Level */}
             <td className="border p-2 text-center">
                 <input
+                    key={index}
                     defaultValue={slab.level || ""}
                     onBlur={(e) =>
                         updateLevel(e.target.value)

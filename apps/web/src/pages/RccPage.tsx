@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useEffect, useState, useCallback } from "react";
 import BackButton from "../components/common/BackButton";
 import { debounce } from "../utils/debounce";
@@ -8,7 +8,7 @@ import { Flex, Text, Button } from "@radix-ui/themes";
 import Slab from "../components/slab/Slab";
 
 function RccPage() {
-    const { siteId, phaseId } = useParams();
+    const { siteId } = useParams();
 
     const [rcc, setRcc] = useState<any[]>([]);
     const [search, setSearch] = useState("");
@@ -112,8 +112,6 @@ function RccPage() {
                                 <Slab
                                     key={slab.id}
                                     slab={slab}
-                                    siteId={siteId}
-                                    phaseId={phaseId}
                                     onRefresh={() => fetchRcc()}
                                     index={(currentPage - 1) * itemsPerPage + index}
                                 />
