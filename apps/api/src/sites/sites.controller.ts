@@ -16,11 +16,22 @@ import { Roles } from '../auth/roles.decorator';
 export class SitesController {
   constructor(private sitesService: SitesService) {}
 
-  // Create Site (Admin + Super Admin)
+  // Create Site (Admin + Super Admin + Engineer)
   @Post()
-  @Roles('SUPER_ADMIN', 'ADMIN')
+  @Roles('SUPER_ADMIN', 'ADMIN', 'ENGINEER')
   createSite(
-    @Body() body: { name: string; location?: string; description?: string },
+    @Body() body: {
+      name: string;
+      location?: string;
+      description?: string;
+      developer?: string;
+      contractor?: string;
+      totalSlabCount?: number;
+      totalColumnCount?: number;
+      slabs?: { name: string; level: number }[];
+      columnNames?: string[];
+      assignedUserIds?: number[];
+    },
     @Request() req,
   ) {
     return this.sitesService.createSite(body, req.user);

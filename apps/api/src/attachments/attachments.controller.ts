@@ -26,16 +26,18 @@ export class AttachmentsController {
     @Body() body: any,
     @Req() req,
   ) {
-    const user = req.user as any;
+    const uploader = req.user as any;
 
     return this.attachmentsService.uploadAttachment({
       file,
-      site: { id: Number(body.siteId) } as any,
+      user: body.userId ? ({ id: Number(body.userId) } as any) : undefined,
+      site: body.siteId ? ({ id: Number(body.siteId) } as any) : undefined,
       phase: body.phaseId ? ({ id: Number(body.phaseId) } as any) : undefined,
       pile: body.pileId ? ({ id: Number(body.pileId) } as any) : undefined,
+      slab: body.slabId ? ({ id: Number(body.slabId) } as any) : undefined,
       type: body.type as AttachmentType,
       isPublic: body.isPublic === 'true',
-      user,
+      uploader,
     });
   }
 
@@ -58,6 +60,15 @@ export class AttachmentsController {
   @Delete('permanent/:id')
   async permanentDelete(@Param('id') id: number) {
     return this.attachmentsService.permanentDelete(Number(id));
+  }
+
+  @Get('by-phase/:phaseId')
+  async getByPhase(@Param('phaseId') phaseId: number) {
+    const id = Number(phaseId);
+    if (isNaN(id)) {
+      throw new BadRequestException('Invalid phaseId');
+    }
+    return this.attachmentsService.getByPhase(id);
   }
 
   @Get('by-phase/:phaseId/type/:type')

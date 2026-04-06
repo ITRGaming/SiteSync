@@ -9,6 +9,8 @@ import { Site } from './site.entity';
 import { SiteAssignment } from './site-assignment.entity';
 import { User } from '../users/user.entity';
 import { Phase, PhaseType } from 'src/phases/phase.entity';
+import { Slab } from 'src/slabs/slab.entity';
+import { SiteColumn } from 'src/columns/column.entity';
 
 @Injectable()
 export class SitesService {
@@ -24,6 +26,12 @@ export class SitesService {
 
     @InjectRepository(Phase)
     private phaseRepo: Repository<Phase>,
+
+    @InjectRepository(Slab)
+    private slabRepo: Repository<Slab>,
+
+    @InjectRepository(SiteColumn)
+    private columnRepo: Repository<SiteColumn>,
   ) {}
 
   async createSite(
@@ -31,13 +39,28 @@ export class SitesService {
       name: string;
       location?: string;
       description?: string;
+      developer?: string;
+      contractor?: string;
+      totalSlabCount?: number;
+      totalColumnCount?: number;
+      slabs?: { name: string; level: number }[];
+      columnNames?: string[];
+      assignedUserIds?: number[];
     },
     user: User,
   ) {
-    const site = this.siteRepo.create(data);
+    const site = this.siteRepo.create({
+      name: data.name,
+      location: data.location,
+      description: data.description,
+      developer: data.developer,
+      contractor: data.contractor,
+      totalSlabCount: data.totalSlabCount,
+      totalColumnCount: data.totalColumnCount,
+    });
     const savedSite = await this.siteRepo.save(site);
 
-    // Create default phase
+    // Create default phases
     await this.phaseRepo.save([
       {
         type: PhaseType.PILES,
@@ -46,14 +69,9 @@ export class SitesService {
         updatedBy: { id: user.id } as User,
       },
       {
-        type: PhaseType.PLINTH,
-        site: savedSite,
-        createdBy: { id: user.id } as User,
-        updatedBy: { id: user.id } as User,
-      },
-      {
         type: PhaseType.RCC,
         site: savedSite,
+        totalSlabCount: data.totalSlabCount,
         createdBy: { id: user.id } as User,
         updatedBy: { id: user.id } as User,
       },
@@ -70,6 +88,47 @@ export class SitesService {
         updatedBy: { id: user.id } as User,
       },
     ]);
+
+    // Save slabs from frontend (with names and levels)
+    if (data.slabs && data.slabs.length > 0) {
+      const slabs: Slab[] = data.slabs.map((s) =>
+        this.slabRepo.create({
+          site: savedSite,
+          name: s.name,
+          level: s.level,
+          createdBy: { id: user.id } as User,
+          updatedBy: { id: user.id } as User,
+        }),
+      );
+      await this.slabRepo.save(slabs);
+    }
+
+    // Save columns from frontend (with user-provided names)
+    if (data.columnNames && data.columnNames.length > 0) {
+      const columns: SiteColumn[] = data.columnNames.map((colName) =>
+        this.columnRepo.create({
+          site: savedSite,
+          name: colName,
+          createdBy: { id: user.id } as User,
+          updatedBy: { id: user.id } as User,
+        }),
+      );
+      await this.columnRepo.save(columns);
+    }
+
+    // Assign users if assignedUserIds is provided
+    if (data.assignedUserIds && data.assignedUserIds.length > 0) {
+      for (const userId of data.assignedUserIds) {
+        try {
+          await this.assignEngineer(savedSite.id, userId, user);
+        } catch (error) {
+          console.error(
+            `Failed to assign user ${userId} to site ${savedSite.id}`,
+            error,
+          );
+        }
+      }
+    }
 
     return savedSite;
   }

@@ -33,19 +33,6 @@ export class PhasesController {
     );
   }
 
-  @Post(':id/start-rcc')
-  startRccPhase(
-    @Param('id') id: string,
-    @Body() body: { totalSlabCount: string },
-    @Req() req,
-  ) {
-    return this.phasesService.startRccPhase(
-      Number(id),
-      Number(body.totalSlabCount),
-      req.user,
-    );
-  }
-
   @Post('repair')
   @Roles('SUPER_ADMIN')
   repair() {

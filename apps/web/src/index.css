@@ -1,6 +1,24 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary: 139, 105, 20; /* #8B6914 */
+    --color-bg-base: 245, 240, 232; /* #F5F0E8 */
+    --color-text-main: 26, 26, 26; /* #1A1A1A */
+  }
+  
+  body {
+    @apply bg-[#F5F0E8] text-[#1A1A1A] font-inter antialiased min-h-screen overflow-x-hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-outfit tracking-tight;
+  }
+}
 
 @keyframes fadeIn {
   from { opacity: 0; transform: scale(0.95); }
@@ -9,4 +27,33 @@
 
 .animate-fadeIn {
   animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slideUp {
+  animation: slideUp 0.4s ease-out forwards;
+}
+
+/* Custom Checkbox Style for step forms */
+input[type="checkbox"].accent-brown {
+  accent-color: #8B6914;
+}
+
+/* Modern clean scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400;
 }

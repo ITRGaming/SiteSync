@@ -11,11 +11,10 @@ import {
 import { Site } from '../sites/site.entity';
 import { Pile } from '../piles/pile.entity';
 import { User } from 'src/users/user.entity';
-import { Rcc } from 'src/rcc/rcc.entity';
 
 export enum PhaseType {
   PILES = 'PILES',
-  PLINTH = 'PLINTH',
+  // PLINTH = 'PLINTH',
   RCC = 'RCC',
   FINISHING = 'FINISHING',
   PARKING = 'PARKING',
@@ -51,9 +50,6 @@ export class Phase {
 
   @OneToMany(() => Pile, (pile) => pile.phase)
   piles: Pile[];
-
-  @OneToMany(() => Rcc, (rcc) => rcc.phase)
-  rccs: Rcc[];
 
   @Column({ nullable: true })
   totalPileCount: number;

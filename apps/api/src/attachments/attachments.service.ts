@@ -12,6 +12,7 @@ import { User } from '../users/user.entity';
 import { Site } from '../sites/site.entity';
 import { Phase } from '../phases/phase.entity';
 import { Pile } from '../piles/pile.entity';
+import { Slab } from 'src/slabs/slab.entity';
 
 @Injectable()
 export class AttachmentsService {
@@ -40,14 +41,17 @@ export class AttachmentsService {
 
   async uploadAttachment(params: {
     file: Express.Multer.File;
-    site: Site;
+    user?: User;
+    site?: Site;
     phase?: Phase;
     pile?: Pile;
+    slab?: Slab;
     type: AttachmentType;
     isPublic: boolean;
-    user: User;
+    uploader: User;
   }) {
-    const { file, site, phase, pile, type, isPublic, user } = params;
+    const { file, user, site, phase, pile, slab, type, isPublic, uploader } =
+      params;
 
     await this.checkStorageLimit(file.size);
 
@@ -58,9 +62,11 @@ export class AttachmentsService {
     );
 
     const attachment = this.attachmentRepo.create({
+      user,
       site,
       phase,
       pile,
+      slab,
       type,
       originalFileName: file.originalname,
       storageKey: key,
@@ -68,7 +74,7 @@ export class AttachmentsService {
       fileSize: file.size,
       version: 1,
       isPublic,
-      uploadedBy: user,
+      uploadedBy: uploader,
     });
 
     return await this.attachmentRepo.save(attachment);
@@ -121,6 +127,16 @@ export class AttachmentsService {
 
     await this.r2Service.deleteFile(attachment.storageKey);
     return this.attachmentRepo.remove(attachment);
+  }
+
+  async getByPhase(phaseId: number) {
+    return this.attachmentRepo.find({
+      where: {
+        phase: { id: phaseId },
+        isDeleted: false,
+      },
+      order: { createdAt: 'DESC' },
+    });
   }
 
   async getByPhaseAndType(phaseId: number, type: AttachmentType) {

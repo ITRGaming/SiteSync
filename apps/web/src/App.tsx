@@ -9,6 +9,7 @@ import PileReportPage from "./pages/PileReportPage";
 import UsersManagement from "./pages/UsersManagement";
 import Profile from "./pages/Profile";
 import ChangePassword from "./pages/ChangePassword";
+import SlabPourCard from "./pages/SlabPourCard";
 
 function App() {
   return (
@@ -66,6 +67,15 @@ function App() {
         element={
           <ProtectedRoute>
             <PileReportPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/dashboard/site/:siteId/phase/:phaseId/slab/:slabId/pour"
+        element={
+          <ProtectedRoute>
+            <SlabPourCard />
           </ProtectedRoute>
         }
       />

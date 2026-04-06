@@ -1,20 +1,22 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
-import { IconButton, Button } from "@radix-ui/themes";
-import { TrashIcon, ResetIcon, ExitIcon, PersonIcon, GearIcon, Cross2Icon } from "@radix-ui/react-icons";
 import { useNavigate } from "react-router-dom";
-
+import Sidebar from "../components/dashboard/Sidebar";
+import ProjectCard from "../components/dashboard/projectCard";
+import OnboardCard from "../components/dashboard/OnboardCard";
+import CreateSiteModal from "../components/dashboard/CreateSiteModal";
+import { Cross2Icon } from "@radix-ui/react-icons";
 
 function Dashboard() {
   const [me, setMe] = useState<any>(null);
   const [sites, setSites] = useState<any[]>([]);
   const [assignableUsers, setAssignableUsers] = useState<any[]>([]);
-  const [selectedUsers, setSelectedUsers] = useState<Record<number, string[]>>({});
-  const [name, setName] = useState("");
-  const [location, setLocation] = useState("");
-  const [description, setDescription] = useState("");
   const [activeTab, setActiveTab] = useState<"active" | "deleted">("active");
-  const [openDropdown, setOpenDropdown] = useState<number | null>(null);
+  const [isCreateModalOpen, setCreateModalOpen] = useState(false);
+
+  // Assign modal
+  const [assignModalSiteId, setAssignModalSiteId] = useState<number | null>(null);
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
 
   const navigate = useNavigate();
   const role = localStorage.getItem("role") || "UNKNOWN";
@@ -31,9 +33,7 @@ function Dashboard() {
 
   const fetchSites = async () => {
     try {
-      const res = await api.get(
-        `/sites?isActive=${activeTab === "active"}`
-      );
+      const res = await api.get(`/sites?isActive=${activeTab === "active"}`);
       setSites(res.data);
     } catch (err) {
       console.error(err);
@@ -49,41 +49,34 @@ function Dashboard() {
     }
   };
 
-  const assignUsers = async (siteId: number) => {
-    const selected = selectedUsers[siteId] || [];
+  useEffect(() => {
+    fetchUserDetails();
+    fetchSites();
+    fetchAssignableUsers();
+  }, [activeTab]);
 
-    if (selected.length === 0) {
-      alert("Select at least one user");
-      return;
-    }
+  // Assign modal handlers
+  const openAssignModal = (siteId: number) => {
+    setAssignModalSiteId(siteId);
+    setSelectedUserIds([]);
+  };
 
+  const assignUsers = async () => {
+    if (!assignModalSiteId || selectedUserIds.length === 0) return;
     const errors: string[] = [];
-
-    for (const userId of selected) {
+    for (const userId of selectedUserIds) {
       try {
-        await api.post(`/sites/${siteId}/assign/${userId}`);
+        await api.post(`/sites/${assignModalSiteId}/assign/${userId}`);
       } catch (err: any) {
-        errors.push(
-          err.response?.data?.message || "Error assigning"
-        );
+        errors.push(err.response?.data?.message || "Error assigning");
       }
     }
-
-    if (errors.length > 0) {
-      alert(errors.join("\n"));
-    } else {
-      alert("Users assigned successfully");
-    }
-
-    setSelectedUsers((prev) => ({
-      ...prev,
-      [siteId]: [],
-    }));
-
+    if (errors.length > 0) alert(errors.join("\n"));
+    setAssignModalSiteId(null);
     fetchSites();
   };
 
-  const unassignUser = async (siteId: number, userId: string) => {
+  const unassignUser = async (siteId: number, userId: number) => {
     if (!window.confirm("Remove this engineer from the site?")) return;
     try {
       await api.delete(`/sites/${siteId}/assign/${userId}`);
@@ -93,46 +86,8 @@ function Dashboard() {
     }
   };
 
-
-  useEffect(() => {
-    fetchUserDetails();
-    fetchSites();
-    fetchAssignableUsers();
-    const handleClickOutside = () => {
-      setOpenDropdown(null);
-    };
-
-    document.addEventListener("click", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
-  }, [activeTab]);
-
-  const createSite = async () => {
-    try {
-      await api.post("/sites", {
-        name,
-        location,
-        description,
-      });
-      setName("");
-      setLocation("");
-      setDescription("");
-      fetchSites();
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Error creating site");
-    }
-  };
-
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    localStorage.removeItem("isAdmin");
-    window.location.href = "/";
-  };
-
   const softDeleteSite = async (id: number) => {
+    if (!window.confirm("Archive this site?")) return;
     await api.patch(`/sites/${id}/delete`);
     fetchSites();
   };
@@ -143,267 +98,191 @@ function Dashboard() {
   };
 
   const hardDeleteSite = async (id: number) => {
-    if (!window.confirm("Permanent delete?")) return;
+    if (!window.confirm("Permanently delete this site? This cannot be undone.")) return;
     await api.delete(`/sites/${id}`);
     fetchSites();
   };
 
+  const activeSitesCount = sites.filter((s) => s.isActive).length;
+  const inactiveSitesCount = activeTab === "deleted" ? sites.length : 0;
+
+  // Get site for assign modal
+  const assignModalSite = sites.find((s) => s.id === assignModalSiteId);
+  const alreadyAssignedIds = assignModalSite?.assignments?.map((a: any) => a.user?.id) || [];
+  const filteredAssignableUsers = assignableUsers.filter((u) => !alreadyAssignedIds.includes(u.id));
+
   return (
-    <div className="p-8 bg-gray-100 min-h-screen">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <div className="flex gap-4">
-          {isAdmin && (
-            <Button variant="soft" color="indigo" onClick={() => navigate("/users")}>
-              <GearIcon /> Manage Users
-            </Button>
-          )}
-          <Button variant="soft" color="gray" onClick={() => navigate("/profile")}>
-            <PersonIcon /> Profile
-          </Button>
-          <IconButton variant="solid" color="red" size="2" onClick={logout} title="Logout">
-            <ExitIcon width="18" height="18" />
-          </IconButton>
+    <div className="flex bg-[#F5F0E8] min-h-screen">
+      <Sidebar user={me} role={role} />
+
+      <div className="flex-1 p-6 md:p-10 w-full overflow-x-hidden pb-20">
+        {/* Mobile Header */}
+        <div className="md:hidden flex justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-[#8B6914] rounded-md flex items-center justify-center text-white font-bold font-outfit">S</div>
+            <h1 className="font-outfit font-bold text-xl leading-none">SiteSync</h1>
+          </div>
+          <div className="flex gap-2">
+            <button
+              className="bg-gray-100 p-2 rounded-lg"
+              onClick={() => navigate("/profile")}
+            >
+              <img
+                src={`https://api.dicebear.com/7.x/notionists/svg?seed=${me?.fullName || "User"}`}
+                alt="Avatar"
+                className="w-6 h-6 rounded-full"
+              />
+            </button>
+            <button
+              className="bg-[#8B6914] text-white p-2 flex items-center justify-center rounded-lg"
+              onClick={() => setCreateModalOpen(true)}
+            >
+              <svg width="18" height="18" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7.5 1V14M1 7.5H14" stroke="currentColor" strokeWidth="2" />
+              </svg>
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div className="text-gray-600 flex flex-col justify-center items-center mb-8">
-        <h2 className="text-3xl"><strong>Welcome {me?.fullName} !</strong></h2>
-        <p>Role: {role}</p>
-      </div>
+        {/* Header */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 pb-6 border-b border-[#E5DFD3]">
+          <div>
+            <p className="text-[#8B6914] text-[10px] uppercase font-bold tracking-[0.2em] mb-3">Operational Matrix</p>
+            <h1 className="font-outfit text-4xl md:text-5xl font-extrabold tracking-tight text-[#1A1A1A]">
+              Project Ledger <span className="text-[#8B6914]">Overview</span>
+            </h1>
+          </div>
+          <div className="flex gap-8 mt-6 md:mt-0 text-right">
+            <div>
+              <p className="text-4xl md:text-5xl font-outfit font-bold text-[#1A1A1A] leading-none mb-1">
+                {String(activeTab === "active" ? activeSitesCount : sites.length).padStart(2, "0")}
+              </p>
+              <p className="text-[10px] font-bold tracking-wider uppercase text-gray-500">
+                {activeTab === "active" ? "ACTIVE SITES" : "DELETED"}
+              </p>
+            </div>
+            <div>
+              <p className="text-4xl md:text-5xl font-outfit font-bold text-gray-300 leading-none mb-1">
+                {String(inactiveSitesCount).padStart(2, "0")}
+              </p>
+              <p className="text-[10px] font-bold tracking-wider uppercase text-gray-400">INACTIVE</p>
+            </div>
+          </div>
+        </div>
 
-      {/* Create Site */}
-      {isAdmin && (<div className="bg-white p-6 rounded shadow mb-8">
-        <h2 className="text-xl font-semibold mb-4">
-          Create New Site
-        </h2>
-
-        <div className="flex gap-4 lg:flex-row  flex-col">
-          <input
-            placeholder="Site Name"
-            className="border p-2 flex-1 rounded"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-
-          <input
-            placeholder="Location"
-            className="border p-2 flex-1 rounded"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-          />
-
-          <input
-            placeholder="Description"
-            className="border p-2 flex-1 rounded"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-
+        {/* Filters */}
+        <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
           <button
-            onClick={createSite}
-            className="bg-blue-600 text-white px-4 rounded"
+            onClick={() => setActiveTab("active")}
+            className={`px-5 py-2.5 rounded-full text-xs uppercase tracking-widest font-bold transition-all shadow-sm whitespace-nowrap ${
+              activeTab === "active" ? "bg-[#8B6914] text-white" : "bg-white text-gray-500 hover:bg-gray-100"
+            }`}
           >
-            Create
+            Active Sites
+          </button>
+          <button
+            onClick={() => setActiveTab("deleted")}
+            className={`px-5 py-2.5 rounded-full text-xs uppercase tracking-widest font-bold transition-all shadow-sm whitespace-nowrap ${
+              activeTab === "deleted" ? "bg-[#8B6914] text-white" : "bg-white text-gray-500 hover:bg-gray-100"
+            }`}
+          >
+            Deleted
+          </button>
+          <button
+            className="px-5 py-2.5 rounded-full text-xs uppercase tracking-widest font-bold transition-all shadow-sm bg-white text-gray-500 hover:bg-gray-100 whitespace-nowrap hidden md:block"
+            onClick={() => setCreateModalOpen(true)}
+          >
+            + New Project
+          </button>
+          <button
+            className="px-5 py-2.5 rounded-full text-xs uppercase tracking-widest font-bold transition-all shadow-sm bg-white text-gray-500 hover:bg-gray-100 whitespace-nowrap ml-auto"
+            onClick={() => {
+              localStorage.removeItem("token");
+              localStorage.removeItem("role");
+              localStorage.removeItem("isAdmin");
+              window.location.href = "/";
+            }}
+          >
+            Sign Out
           </button>
         </div>
-      </div>)}
 
-      {/* Site List */}
-      <div className="flex gap-4 mb-4">
-        <button
-          onClick={() => setActiveTab("active")}
-          className={`px-4 py-2 rounded ${activeTab === "active" ? "bg-blue-600 text-white" : "bg-gray-200"
-            }`}
-        >
-          Active
-        </button>
-        <button
-          onClick={() => {
-            setActiveTab("deleted");
-          }}
-          className={`px-4 py-2 rounded ${activeTab === "deleted" ? "bg-blue-600 text-white" : "bg-gray-200"
-            }`}
-        >
-          Deleted
-        </button>
-      </div>
-      <div className="bg-white p-6 rounded shadow">
-        <h2 className="text-xl font-semibold mb-4">
-          My Sites
-        </h2>
-
-        {sites.length === 0 && (
-          <p className="text-gray-500">No sites found.</p>
-        )}
-        <ul className="space-y-3">
+        {/* Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-slideUp">
           {sites.map((site) => (
-            <li
+            <ProjectCard
               key={site.id}
-              className="border p-4 rounded grid grid-cols-3"
-            >
-              <div>
-                <h3 className="font-bold cursor-pointer text-blue-500"
-                  onClick={() =>
-                    navigate(`/dashboard/site/${site.id}/phase`)
-                  }
-                >{site.name}</h3>
-                <p className="text-sm text-gray-500 mb-2">
-                  ({site.location})
-                </p>
-                {site.description && (
-                  <div className="mb-2">
-                    <h4 className="text-base text-gray-600">Description:</h4>
-                    <p className="text-sm text-gray-500">
-                      {site.description}
-                    </p>
-                  </div>
-                )}
-                {site.assignments && site.assignments.length > 0 && (
-                  <div>
-                    <h4 className="text-base text-gray-600 mb-1">Assigned Engineers:</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {site.assignments.map((assignment: any) => (
-                        <div key={assignment.id} className="flex items-center gap-1 bg-blue-50 text-blue-800 border border-blue-200 px-2 py-1 rounded text-xs shadow-sm">
-                          <span>{assignment.user?.fullName}</span>
-                          {isAdmin && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                unassignUser(site.id, assignment.user.id);
-                              }}
-                              className="hover:bg-blue-200 rounded p-0.5 text-blue-600 hover:text-blue-900 transition-colors"
-                              title="Remove Assignment"
-                            >
-                              <Cross2Icon width="12" height="12" />
-                            </button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+              site={site}
+              isAdmin={isAdmin}
+              activeTab={activeTab}
+              role={role}
+              onAssign={openAssignModal}
+              onUnassign={unassignUser}
+              onSoftDelete={softDeleteSite}
+              onRestore={restoreSite}
+              onHardDelete={hardDeleteSite}
+            />
+          ))}
+          {activeTab === "active" && <OnboardCard onClick={() => setCreateModalOpen(true)} />}
+        </div>
+      </div>
+
+      {/* Assign Modal */}
+      {assignModalSiteId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setAssignModalSiteId(null)}></div>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md relative z-10 animate-slideUp">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-outfit text-xl font-bold">Assign Engineers</h3>
+                <button onClick={() => setAssignModalSiteId(null)} className="text-gray-400 hover:text-gray-600">
+                  <Cross2Icon />
+                </button>
               </div>
-              {isAdmin && activeTab === "active" && (
-                <div className="relative">
-                  <button
-                    className="border px-3 py-1 rounded bg-white"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setOpenDropdown(openDropdown === site.id ? null : site.id);
-                    }}
-                  >
-                    Assign Users
-                  </button>
+              <p className="text-sm text-gray-500 mb-4">
+                Assigning to <strong>{assignModalSite?.name}</strong>
+              </p>
 
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {(selectedUsers[site.id] || []).map((uid) => {
-                      const user = assignableUsers.find(
-                        (u) => u.id.toString() === uid
-                      );
-
-                      return (
-                        <span
-                          key={uid}
-                          className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs"
-                        >
-                          {user?.fullName}
-                        </span>
-                      );
-                    })}
-                  </div>
-
-                  {openDropdown === site.id && (
-                    <div className="absolute z-10 bg-white border mt-2 p-3 rounded shadow w-56 max-h-48 overflow-y-auto"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {assignableUsers.filter((u) => !site.assignments?.some((a: any) => a.user?.id === u.id)).length === 0 ? (
-                        <p className="text-sm text-gray-500 mb-2">All eligible users are already assigned.</p>
-                      ) : assignableUsers
-                        .filter((u) => !site.assignments?.some((a: any) => a.user?.id === u.id))
-                        .map((user) => {
-                          const selected = selectedUsers[site.id] || [];
-                          const isChecked = selected.includes(user.id.toString());
-
-                          return (
-                            <>
-                              <label
-                                key={user.id}
-                                className="flex items-center gap-2 mb-2 text-sm"
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={isChecked}
-                                  onChange={() => {
-                                    setSelectedUsers((prev) => {
-                                      const current = prev[site.id] || [];
-
-                                      if (isChecked) {
-                                        return {
-                                          ...prev,
-                                          [site.id]: current.filter(
-                                            (id) => id !== user.id.toString()
-                                          ),
-                                        };
-                                      } else {
-                                        return {
-                                          ...prev,
-                                          [site.id]: [
-                                            ...current,
-                                            user.id.toString(),
-                                          ],
-                                        };
-                                      }
-                                    });
-                                  }}
-                                />
-                                {user.fullName}
-                              </label>
-                            </>
+              {filteredAssignableUsers.length === 0 ? (
+                <p className="text-sm text-gray-400 py-4">All eligible engineers are already assigned.</p>
+              ) : (
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {filteredAssignableUsers.map((user) => (
+                    <label key={user.id} className="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg">
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 accent-[#8B6914] rounded"
+                        checked={selectedUserIds.includes(user.id.toString())}
+                        onChange={() => {
+                          setSelectedUserIds((prev) =>
+                            prev.includes(user.id.toString()) ? prev.filter((id) => id !== user.id.toString()) : [...prev, user.id.toString()]
                           );
-                        })}
-                      <button
-                        onClick={() => {
-                          assignUsers(site.id);
-                          setOpenDropdown(null);
                         }}
-                        className="bg-green-600 text-white px-2 py-1 rounded text-sm mt-2 w-full"
-                      >
-                        Confirm Assign
-                      </button>
-                    </div>
-                  )}
+                      />
+                      <span className="font-medium text-sm">{user.fullName}</span>
+                    </label>
+                  ))}
                 </div>
               )}
-              <div>
-                <span className="text-xs text-gray-400 flex justify-end mb-4">
-                  ID: {site.id}
-                </span>
-                <div className="flex gap-2 justify-end">
-                  {activeTab === "active" && isAdmin && (
-                    <IconButton variant="soft" color="red" size="2" onClick={() => softDeleteSite(site.id)}>
-                      <TrashIcon width="18" height="18" />
-                    </IconButton>
-                  )}
-                  {activeTab === "deleted" && isAdmin && (
-                    <>
-                      <IconButton variant="solid" color="green" size="2" onClick={() => restoreSite(site.id)}>
-                        <ResetIcon width="18" height="18" />
-                      </IconButton>
 
-                      {role === "SUPER_ADMIN" && (
-                        <IconButton variant="solid" color="red" size="2" onClick={() => hardDeleteSite(site.id)}>
-                          <TrashIcon width="18" height="18" />
-                        </IconButton>
-                      )}
-                    </>
-                  )}
-                </div>
+              <div className="mt-6 flex justify-end gap-2">
+                <button onClick={() => setAssignModalSiteId(null)} className="px-4 py-2 text-gray-500 text-sm font-semibold">
+                  Cancel
+                </button>
+                <button
+                  onClick={assignUsers}
+                  disabled={selectedUserIds.length === 0}
+                  className="px-6 py-2 bg-[#8B6914] hover:bg-[#72540f] text-white rounded-lg font-bold text-sm transition-colors disabled:opacity-40"
+                >
+                  Assign Selected
+                </button>
               </div>
-            </li>
-          ))}
-        </ul>
-      </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <CreateSiteModal isOpen={isCreateModalOpen} onClose={() => setCreateModalOpen(false)} onSuccess={fetchSites} assignableUsers={assignableUsers} />
     </div>
   );
 }

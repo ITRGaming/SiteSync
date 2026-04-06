@@ -20,7 +20,8 @@ import { PileReportModule } from './pile-report/pile-report.module';
 import { StorageController } from './storage/storage.controller';
 import { AttachmentsModule } from './attachments/attachments.module';
 import { StorageModule } from './storage/storage.module';
-import { RccModule } from './rcc/rcc.module';
+import { SlabsModule } from './slabs/slab.module';
+import { ColumnsModule } from './columns/columns.module';
 import * as bcrypt from 'bcrypt';
 
 @Module({
@@ -66,7 +67,9 @@ import * as bcrypt from 'bcrypt';
 
     StorageModule,
 
-    RccModule,
+    SlabsModule,
+
+    ColumnsModule,
   ],
   controllers: [AppController, StorageController],
   providers: [
@@ -142,6 +145,15 @@ export class AppModule implements OnModuleInit {
           mustChangePassword: false,
         }),
       );
+    }
+
+    // Temporary Cleanup: Delete all PLINTH phases
+    try {
+      await this.dataSource.query(
+        `DELETE FROM "phase" WHERE "type"::text = 'PLINTH' `,
+      );
+    } catch (error) {
+      console.error('Cleanup Error:', error.message);
     }
   }
 }

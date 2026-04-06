@@ -103,11 +103,11 @@ function SiteDetail() {
             key={phase.id}
             className="border p-4 rounded shadow cursor-pointer hover:shadow-lg transition"
             onClick={() => {
-              if (phase.type === "PILES" && phase.totalPileCount !== null) {
+              if (phase.type === "PILES" && phase.totalPileCount !== null && phase.startDate !== null) {
                 navigate(
                   `/dashboard/site/${siteId}/phase/${phase.id}/piles`
                 );
-              } else if (phase.type === "RCC" && phase.totalSlabCount !== null) {
+              } else if (phase.type === "RCC" && phase.totalSlabCount !== null && phase.startDate !== null) {
                 navigate(
                   `/dashboard/site/${siteId}/phase/${phase.id}/rcc`
                 );
@@ -144,17 +144,11 @@ function SiteDetail() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (phase.type === "PILES" ) {
+                      if (phase.type === "PILES") {
                         if (phase.totalPileCount === null) {
                           setPilePhaseId(phase.id);
                         } else {
                           alert("Piles already generated for this phase");
-                        }
-                      } else if (phase.type === "RCC") {
-                        if (phase.totalSlabCount === null) {
-                          setRccPhaseId(phase.id);
-                        } else {
-                          alert("Slabs already generated for this phase");
                         }
                       } else {
                         updatePhase(phase.id, "start");

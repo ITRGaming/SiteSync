@@ -6,13 +6,20 @@ import {
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToOne,
 } from 'typeorm';
-import { Phase } from '../phases/phase.entity';
 import { Site } from '../sites/site.entity';
 import { User } from 'src/users/user.entity';
+import { SlabExecutionReport } from './slab-execution-report.entity';
+
+export enum SlabStatus {
+  PENDING = 'PENDING',
+  IN_PROGRESS = 'IN_PROGRESS',
+  COMPLETED = 'COMPLETED',
+}
 
 @Entity()
-export class Rcc {
+export class Slab {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -22,15 +29,18 @@ export class Rcc {
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
   level: number;
 
-  @ManyToOne(() => Site, (site) => site.rccs, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Site, (site) => site.slabs, { onDelete: 'CASCADE' })
   site: Site;
 
-  // Phase relation
-  @ManyToOne(() => Phase, (phase) => phase.rccs, {
-    onDelete: 'CASCADE',
+  @OneToOne(() => SlabExecutionReport, (report) => report.slab)
+  executionReport: SlabExecutionReport;
+
+  @Column({
+    type: 'enum',
+    enum: SlabStatus,
+    default: SlabStatus.PENDING,
   })
-  @JoinColumn()
-  phase: Phase;
+  status: SlabStatus;
 
   @Column({ default: true })
   isActive: boolean;

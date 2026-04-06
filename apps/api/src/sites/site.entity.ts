@@ -12,7 +12,9 @@ import { SiteAssignment } from './site-assignment.entity';
 import { Phase } from '../phases/phase.entity';
 import { Pile } from 'src/piles/pile.entity';
 import { User } from 'src/users/user.entity';
-import { Rcc } from 'src/rcc/rcc.entity';
+import { Slab } from 'src/slabs/slab.entity';
+import { Attachment } from 'src/attachments/attachment.entity';
+import { SiteColumn } from 'src/columns/column.entity';
 
 @Entity()
 export class Site {
@@ -24,6 +26,18 @@ export class Site {
 
   @Column({ nullable: true })
   location: string;
+
+  @Column({ nullable: true })
+  developer: string;
+
+  @Column({ nullable: true })
+  contractor: string;
+
+  @Column({ nullable: true })
+  totalSlabCount: number;
+
+  @Column({ nullable: true })
+  totalColumnCount: number;
 
   @Column({ nullable: true })
   description: string;
@@ -54,6 +68,12 @@ export class Site {
   @OneToMany(() => Pile, (pile) => pile.site)
   piles: Pile[];
 
-  @OneToMany(() => Rcc, (rcc) => rcc.site)
-  rccs: Rcc[];
+  @OneToMany(() => Slab, (slab) => slab.site)
+  slabs: Slab[];
+
+  @OneToMany(() => Attachment, (attachment) => attachment.site)
+  attachments: Attachment[];
+
+  @OneToMany(() => SiteColumn, (column) => column.site)
+  columns: SiteColumn[];
 }
