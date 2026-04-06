@@ -4,6 +4,14 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/dashboard/Sidebar";
 import { Cross2Icon } from "@radix-ui/react-icons";
 
+// Modal wrapper
+const Modal = ({ children, onClose }: { children: React.ReactNode; onClose: () => void }) => (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose}></div>
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md relative z-10 animate-slideUp p-6">{children}</div>
+    </div>
+);
+
 export default function UsersManagement() {
     const navigate = useNavigate();
     const [me, setMe] = useState<any>(null);
@@ -113,14 +121,6 @@ export default function UsersManagement() {
 
     const inputCls = "w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#8B6914] bg-white outline-none text-sm";
     const labelCls = "block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-2";
-
-    // Modal wrapper
-    const Modal = ({ children, onClose }: { children: React.ReactNode; onClose: () => void }) => (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose}></div>
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md relative z-10 animate-slideUp p-6">{children}</div>
-        </div>
-    );
 
     return (
         <div className="flex bg-[#F5F0E8] min-h-screen">
